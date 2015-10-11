@@ -1,4 +1,6 @@
 function result = mse(x1,y1,x2,y2,coefficient)
+% This is the function calculating the mean square error(mse) for single or
+% multivariate polynomial regression.
         [n1,r1] = size(x1);
 		[n2,~] = size(x2);
         n = (length(coefficient)-1)/r1;
