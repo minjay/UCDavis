@@ -12,8 +12,8 @@ function displayQSeven(x1,y1,x2)
 
 % part 1, multivariate polynomial regression
     [~,r] = size(x1);
-    polyCoef = singlePolyReg(x1,y1,2);
-    polyY = yhat(x2,polyCoef);
+    polyCoef = singlePolyReg(x1,y1,2); % here I get the regression vector
+    polyY = yhat(x2,polyCoef); % here I get the predicted Y
     fprintf('The estimated MPG is %f under second order multivariate polynomial regression \n', polyY);
     fprintf('Based on the result above, the estimated MPG is medium under second order multivariate polynomial regression \n');
     

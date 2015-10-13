@@ -23,23 +23,24 @@ d_mat = table2array(d(:,1:8)); % transform the table format to matrix format
 % modelYear = d_mat(:,7);
 % origin = d_mat(:,8);
 
-% 1. 
+% 1. calculate the quants using quantile function.
 quant = quantile(table2array(d(:,1)),[1/3,2/3]);
 
 % 2. 
-%plotmatrix(d_mat(:,1:8));
+displayQTwo(d_mat(:,1:8));
 
 % 3.
 % Please see function dimExpand() and singlePolyReg().
 
 % 4.
-%displayQFour(d_mat,d_name);
+displayQFour(d_mat,d_name);
 
 % 5
 displayQFive(d_mat(1:280,2:8),d_mat(1:280,1),d_mat(281:392,2:8),d_mat(281:392,1));
 
 % 6
-displayQSix(d_mat(1:280,2:8),d_mat(1:280,1),d_mat(281:392,2:8),d_mat(281:392,1),18.6667,0.000001);
+displayQSix(d_mat(1:280,2:8),d_mat(1:280,1),d_mat(281:392,2:8),d_mat(281:392,1),18.6667,0.001);
+displayQSix(d_mat(1:280,2:8),d_mat(1:280,1),d_mat(281:392,2:8),d_mat(281:392,1),26.9667,0.001);
 
 % 7
 test = [6,300,170,3600,9,80,1]; % creates the vector to be predicted
