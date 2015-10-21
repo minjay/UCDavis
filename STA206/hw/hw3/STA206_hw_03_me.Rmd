@@ -106,7 +106,7 @@ rankMatrix(H_Int)
 rankMatrix(diag(5) - H_Int)
 ```
 
-The rank of $H$ is now 4, which is the number of $\beta$
+The rank of $H$ is now 4, which is the number of $\beta$. Also, it is one larger than the $H$ in the previous part, since the number of variables adds one, which is the interaction term.
 
 (h) The $\beta_{Int}$ here is
 
