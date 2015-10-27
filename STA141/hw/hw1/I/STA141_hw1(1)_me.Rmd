@@ -1,0 +1,340 @@
+---
+title: "STA141 Assignment 1 I"
+author: "Zhen Zhang"
+date: "October 4, 2015"
+output: 
+  pdf_document: 
+    keep_tex: yes
+    number_sections: yes
+---
+
+```{r global_options, include=FALSE, echo=FALSE, cache=FALSE}
+options(width=50)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, tidy=TRUE, fig.path='Figs/')
+load("STA141/vehicles.rda")
+library(ggplot2)
+library(ggmap)
+```
+
+1. **How many observations are there in the data set?**
+
+```{r}
+dim(vposts)
+```
+
+Then there are 648042 observations in the dataset.
+
+2. **What are the names of the variables? and what is the class of each variable?**
+
+```{r}
+names(vposts)
+```
+```{r}
+unlist(sapply(vposts, class))
+```
+
+3. **What is the average price of all the vehicles? the median price? and the deciles? Displays these on a plot of the distribution of vehicle prices.**
+
+```{r}
+summary(vposts$price)
+```
+
+Then we can see the average price is 49450, the median price is 6700.
+
+```{r}
+quantile(vposts$price, probs = seq(0.1, 1, 0.1), na.rm = T)
+```
+
+The deciles are listed above.
+
+```{r}
+ggplot(vposts, aes(x = price)) + geom_density() + geom_rug()
+```
+
+Here I see there is are outliers, and that's why the plot looks like this. So I can do so by control the x axis by trail and error and then confirm the interval range:
+
+```{r}
+ggplot(vposts, aes(x = price)) + geom_density() + scale_x_continuous(limit = c(0,60000))
+```
+
+Much better now. Then we can see with the increase of price, the number of vehicles is going down.
+
+4. **What are the different categories of vehicles, i.e. the type variable/column? What is the proportion for each category?**
+
+```{r}
+summary(vposts$type)
+```
+
+The types include: bus, convertible, coupe, hatchback, mini-van, offroad, other, pickup, sedan, SUV, truck, van, wagon. There are also 15892 vehicles not shown their types on the result.
+
+```{r}
+prop.table(table(vposts$type))
+```
+
+The table above is the proportion for each catrgory. Note that the sum of them is not equal to 1, since there are many NAs in the dataset.
+
+5. **Display the relationship between fuel type and vehicle type. Does this depend on transmission type?**
+
+```{r}
+table(vposts$fuel, vposts$type)
+ggplot(vposts, aes(x = type, y = ..count..)) + geom_bar(aes(fill = fuel), position = 'stack')
+```
+
+This table shows the relationship between fuel type and vehicle type. After that, I draw the plot with regard to these two categorical variables. Here we can see:
+
++ gas is the most fuel type in all vehicle types.
+
++ The fuel type diesel is large in the vehicle type of pickup, truck and NAs.
+
+To consider the effect of transmission type, we can do as follows:
+
+```{r}
+tableHere <- function(x) {table(x$fuel,x$type)}
+by(vposts, vposts$transmission, tableHere)
+ggplot(vposts, aes(x = type, y = ..count..)) + geom_bar(aes(fill = fuel), position = 'stack') + facet_wrap(~transmission) +  scale_y_continuous(limit = c(0,1100))
+```
+
+From the result, It seems that:
+
++ The fuel type is not versitile at all: almost all fuel use gas. 
+
++ The diesel comes most from pickup, truck and NAs, the same as before.
+
++ The transmission type automatic and manual use diesel.
+
++ NA transmission are always NA in vehicle type and fuel type.
+
+6. **How many different cities are represented in the dataset?**
+
+```{r}
+levels(vposts$city)
+length(levels(vposts$city))
+```
+
+There are seven different cities in the dataset: boston, chicago, denver, lasvegas, nyc, sac, sfbay
+
+7. **Visually how the number/proportion of "for sale by owner" and "for sale by dealer" varies across city?**
+
+```{r}
+table(vposts$byOwner, vposts$city)
+prop.table(table(vposts$byOwner, vposts$city))
+```
+
+The variance is not so much for each one of "for sale by owner" or "for sale by dealer". Now if we see from the row or the column:
+
+```{r}
+prop.table(table(vposts$byOwner, vposts$city), 1) # proportion on row
+prop.table(table(vposts$byOwner, vposts$city), 2) # proportion on column
+```
+
+To visualize the point, we can draw the plot:
+
+```{r}
+ggplot(vposts, aes(x = city, y = ..count..)) + geom_bar(aes(fill = byOwner), position = 'stack')
+```
+
+Here we can see that in some cities, by owner is more than by dealer, in other cities, the situation is just the opposite. There is no obvious difference.
+
+8. **What is the largest price for a vehicle in this data set? Examine this and fix the value. Now examine the new highest value for price.**
+
+```{r}
+max(vposts$price, na.rm = T)
+```
+
+Then we can see the largest price for vehicle is 600030000. This value is not right, and when we refer to the body, it says that the cost will be between $6000 and $30000. So I shoose the mean value of these two numbers:
+
+```{r}
+price_badIndex <- which(vposts$price == max(vposts$price, na.rm = T))
+vposts$price[price_badIndex] = 18000
+```
+
+Now calculate the current highest price:
+
+```{r}
+max(vposts$price, na.rm = T)
+```
+
+The highest price now is 30002500.
+
+9. **What are the three most common makes of cars in each city for "sale by owner" and for "sale by dealer"? Are they similar or quite different?**
+
+First I need to split the dataframe by the identifier byOwner:
+
+```{r}
+s <- split (vposts, vposts$byOwner)
+```
+
+Next I will first make a table with city and maker categorized on the variable byOwner.
+
+```{r}
+counts_Owner <- table(s$"TRUE"$city,  s$"TRUE"$maker)
+counts_Dealer <- table(s$"FALSE"$city,  s$"FALSE"$maker)
+```
+
+Then define a function which will return the top first value for each row (each city).
+
+```{r}
+returnName = function(counts){names(counts)[order(counts, decreasing = TRUE)[1:3]]}
+```
+
+Now I will use the apply function so that R will perform the defined function by a row basis and then return the top three makers per city.
+
+```{r}
+apply(counts_Owner, 1, returnName)
+apply(counts_Dealer, 1, returnName)
+```
+
+10. **Visually compare the distribution of the age of cars for different cities and for "sale by owner" and "sale by dealer". Provide an interpretation of the plots, i.e., what are the key conclusions and insights?**
+
+First we generate the data of the age of car.
+
+```{r}
+age <- 2015 - vposts$year
+vposts$age <- age
+```
+
+First I draw the overall boxplot:
+
+```{r}
+ggplot(vposts,aes(x = city, y = age)) + geom_boxplot(outlier.shape = NA) + facet_wrap(~byOwner) + scale_y_continuous(limit = c(0,30))
+```
+
+In terms of different cities:
+
+```{r}
+ggplot(vposts, aes(x = age)) + geom_density() + facet_wrap(~city, scales = "free") + scale_x_continuous(limit = c(0,50))
+```
+
+Since most of the points are in the interval [0,30], I will change the interval range:
+
+```{r}
+ggplot(vposts, aes(x = age)) + geom_density() + facet_wrap(~city, scales = "free") + scale_x_continuous(limit = c(0,30))
+```
+
+From these pictures, I can conclude two points: 1) the cities does influence the distributions of age of cars; 2) at the age of about 5 years, there are low points, meaning that the cars with age of 5 years is not so much in all of the cities.
+
+In terms of for "sale by owner" and "sale by dealer":
+
+```{r}
+ggplot(vposts, aes(x = age)) + geom_density() + facet_wrap(~byOwner, scales = "free") + scale_x_continuous(limit = c(0,30))
+```
+
+For sale by dealer, there is a low point at 5 years, and two peaks at 2-3 years and 8-9 years. But for sale by owner, the distribution is almost a normal distribution, with mean of about 12 years old.
+
+11. **Plot the locations of the posts on a map? What do you notice?**
+
+```{r}
+ggmap(get_map("america", zoom = 4)) + geom_point(data = vposts, aes(x = long, y = lat))
+```
+
+In this map, I can see that most of the posts are in four parts of the whole country: California, Colorado, around Chicago, the northeast around Boston and New York.
+
+12. **Summarize the distribution of fuel type, drive, transmission, and vehicle type. Find a good way to display this information.**
+
+To plot the distribution graph, I need to first make tables with these four variables and convert it to a dataframe.
+
+```{r}
+vpostsFourVars <- as.data.frame(with(vposts, table(fuel,transmission,drive,type)))
+ggplot(vpostsFourVars, aes(x = fuel, y = Freq, fill = type)) + geom_bar(stat = 'identity', position='stack') + facet_grid(transmission~drive)
+```
+
+From this plot, we can see the following information:
+
++ SUV is the most at fuel type gas, transmission type automatic and drive type 4wd.
+
++ sedan is the most at fuel type gas, transmission type automatic and drive type fwd/rwd.
+
++ most of the vehicles are in the group of transmission type automatic and fuel type gas.
+
+13. **Plot odometer reading and age of car? Is there a relationship? Similarly, plot odometer reading and price? Interpret the result(s). Are odometer reading and age of car related?**
+
+First we plot the relationship between the odometer reading and the age of the car:
+
+```{r}
+ggplot(vposts, aes(y = odometer, x = age)) + geom_point() + scale_y_continuous(limits=c(0, 2.5*10^5)) + scale_x_continuous(limits=c(0, 70)) + stat_smooth()
+```
+
+The reason I control the limits here is that most of the points fall into this interval, and I want to see the pattern more clearly. Here I see a roughly raltionship, which is kind of a parabola: With the increase of age, the odometer of the car first increase, and then decrease. And the peak for odometer is at age 20.
+
+For the ralationship between odometer and price:
+
+```{r}
+ggplot(vposts, aes(y = odometer, x = price)) + geom_point() + scale_y_continuous(limits=c(0, 2.5*10^5)) + scale_x_continuous(limits=c(0, 7*10^4)) + stat_smooth()
+```
+
+It is also like a parabola: the highest odometer is with the price about 40000, and then decreases.
+
+14. **Identify the "old" cars. What manufacturers made these? What is the price distribution for these?**
+
+First let's look at the distribution of the age of cars.
+
+```{r}
+ggplot(vposts, aes(x = age)) + geom_histogram() + scale_x_continuous(limit = c(0, 60))
+```
+
+We see the age of most cars fall into the range of 0 to 20. So I just define the old cars to be age greater than 10.
+
+```{r}
+old <- (vposts$age > 10)
+vposts$old <- old
+```
+
+Now to see which makers made these, I need the table output:
+
+```{r}
+vpostsOld <- split(vposts,old)$'TRUE'
+with(vpostsOld, table(maker))
+```
+
+The price distribution can be visualized:
+
+```{r}
+ggplot(vpostsOld, aes(price)) + geom_density() + scale_x_continuous(limit = c(0,60000))
+```
+
+We can see for the old car, most of their prices fall into the interval [0,20000].
+
+15. **I have omitted one important variable in this data set. What do you think it is? Can we derive this from the other variables? If so, sketch possible ideas as to how we would compute this variable.**
+
+By looking at the body, I found a very important feature for vehicles: Engine. So I use the regular expression to extract the relavent value. There are some strings that does not match this pattern, meaning no engine value. Then I will set them to zero.
+
+```{r}
+engine <- gsub('.*([0-9][.][0-9])L.*','\\1', vposts$body)
+engine[engine == vposts$body] <- NA
+head(engine, n = 20)
+```
+
+The outputs are the engine values for the first 20 observations.
+
+16. **Display how condition and odometer are related. Also how condition and price are related. And condition and age of the car. Provide a brief interpretation of what you find.**
+
+The first step is data preprocessing. Since there are many conditions, and some of them are very small, so I only select the top 8 conditions as a new data frame, named vpostsCond:
+
+```{r}
+condTable <- table(vposts$condition)[order(table(vposts$condition),decreasing = T)[1:8]]
+vpostsCond <- vposts[vposts$condition %in% rownames(condTable),]
+```
+
+Next, display the relationship between condition and odometer:
+
+```{r}
+ggplot(vpostsCond,aes(x = condition, y = odometer)) + geom_boxplot(outlier.shape = NA) + scale_y_continuous(limit = c(0,3.5 * 10^5))
+```
+
+Here we can see that with condition becomes worse and worse, the mean value of odometer rises. The only exception is condition 'used', but it reveals little information about condition. From here I can roughtly rank the condition from best to worst: certified, new, like new, excellent, good, fair, salvage.
+
+Third, display the relationship between condition and price:
+
+```{r}
+ggplot(vpostsCond,aes(x = condition, y = price)) + geom_boxplot(outlier.shape = NA) + scale_y_continuous(limit = c(0,3.5 * 10^4))
+```
+
+This relationship is roughtly reverse compared to the relationship with odometer: with condition becoming worse, the price goes down. There is also an exception: the price of new is lower than that of like new.
+
+Last, display the relationship between condition and age:
+
+```{r}
+ggplot(vpostsCond,aes(x = condition, y = age)) + geom_boxplot(outlier.shape = NA) + scale_y_continuous(limit = c(0,30))
+```
+
+We can see if the age is big, the condition will be worse. It roughly obey the order we have found.

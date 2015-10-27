@@ -1,0 +1,214 @@
+---
+title: "STA206 hw4"
+author: "Zhen Zhang"
+date: "October 23, 2015"
+output: 
+  pdf_document: 
+    fig_height: 6
+---
+
+```{r global_options, include=FALSE, echo=FALSE, cache=FALSE}
+options(width=70)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, tidy=TRUE, fig.path='Figs/')
+```
+
+(a) First read the data:
+
+```{r}
+property <- read.table("property.txt")
+property[,5] <- as.double(property[,5])
+colnames(property) <- c("Y", paste0("X",1:4))
+```
+
+Draw the scatterplot matrix:
+
+```{r}
+pairs(property)
+```
+
+and the correlation matrix:
+
+```{r}
+cor(property)
+```
+
+I can see there is a modest realtionship between $Y$ and $X_2$ or $X_4$, $Y$ and $X_1$ has a negative relationship.
+
+(b) The regression:
+
+```{r}
+fit1 <- lm(Y~., data = property)
+```
+
+```{r}
+summary(fit1)
+```
+
+So the least square estimators are: $\beta_0$ = 12.201, $\beta_1$ = -0.142, $\beta_2$ = 0.282, $\beta_3$ = 0.619, $\beta_4$ = 0.000.
+
+The fitted regression function:
+
+$$Y = 12.201 - 0.142X_1 + 0.282X_2 + 0.619X_3 + 0.000X_4$$
+
+$MSE$ = $1.136885^2$ = 1.293, $R^2$ = 0.585, $R^2_a$ = 0.563.
+
+(c) Residuals vs fitted value plot:
+
+```{r}
+opar <- par()
+par(mfrow = c(2,2))
+plot(fit1, which = 1)
+plot(fit1, which = 2)
+boxplot(fit1$residuals)
+```
+
+We can see the linear relationship is valid, but the qqplot is heavy tailed and there are some residulas not caught by the model since there are some outliers.
+
+(d)
+
+```{r, results='hide'}
+par(mfrow = c(2,2))
+lapply(1:4, function(x) {
+  plot(property[,paste0("X",x)], fit1$residuals, xlab = paste0("X",x), ylab = 'residuals')
+})
+```
+
+```{r, results='hide', cache=FALSE}
+par(mfrow = c(2,2))
+lapply(1:4, function(i) {
+  lapply(i:4, function(j) {
+    plot(property[,paste0("X",i)] * property[,paste0("X",j)], fit1$residuals, xlab = paste0("X",i,'*',"X",j), ylab = 'residuals')
+  })
+})
+```
+
+There are ten interaction terms in total.
+
+Interpretation: In all of the ten interaction terms, whenever $X_3$ is present, the points in the plot will be a little wired: the points should scatter, but now much of the points concentrate together near $x = 0$. So it suggests $X_3$ is uncorrelated with $Y$, should be excluded from the model.
+
+(e) For $\beta_1$:
+
+Null hypothesis ($H_0$): There is no relationship between $Y$ and $X_1$ ($\beta_1 = 0$)
+
+Alternative hypothesis ($H_1$): There is a relationship between $Y$ and $X_1$ ($\beta_1 != 0$)
+
+Test statistic: T-statistic: $T^* = \frac{\hat{\beta_1}}{se(\hat{\beta_1})}$ = -6.65493
+
+Null distribution: Under $H_0$, $\beta_1$ = 0, $T^*$ ~ $t(76)$
+
+p-value: 0.0000000038943
+
+For $\beta_2$:
+
+Null hypothesis ($H_0$): There is no relationship between $Y$ and $X_2$ ($\beta_2 = 0$)
+
+Alternative hypothesis ($H_1$): There is a relationship between $Y$ and $X_2$ ($\beta_2 != 0$)
+
+Test statistic: T-statistic: $T^* = \frac{\hat{\beta_2}}{se(\hat{\beta_2})}$ = 4.46424
+
+Null distribution: Under $H_0$, $\beta_2$ = 0, $T^*$ ~ $t(76)$
+
+p-value: 0.0000274739604
+
+For $\beta_3$:
+
+Null hypothesis ($H_0$): There is no relationship between $Y$ and $X_3$ ($\beta_3 = 0$)
+
+Alternative hypothesis ($H_1$): There is a relationship between $Y$ and $X_3$ ($\beta_3 != 0$)
+
+Test statistic: T-statistic: $T^* = \frac{\hat{\beta_3}}{se(\hat{\beta_3})}$ = 0.56987
+
+Null distribution: Under $H_0$, $\beta_3$ = 0, $T^*$ ~ $t(76)$
+
+p-value: 0.57045
+
+For $\beta_4$:
+
+Null hypothesis ($H_0$): There is no relationship between $Y$ and $X_4$ ($\beta_4 = 0$)
+
+Alternative hypothesis ($H_1$): There is a relationship between $Y$ and $X_4$ ($\beta_4 != 0$)
+
+Test statistic: T-statistic: $T^* = \frac{\hat{\beta_4}}{se(\hat{\beta_4})}$ = 5.72245
+
+Null distribution: Under $H_0$, $\beta_4$ = 0, $T^*$ ~ $t(76)$
+
+p-value: 0.0000001975990
+
+Conclusion: $X_1$, $X_2$ and $X_4$ are significant, while $X_3$ is not significant. It is consistent with the correlation table result.
+
+(f) 
+
+```{r}
+(fit1_anova <- anova(fit1))
+```
+
+This is the anova table.
+
+So $SSE = 98.230594$, dof = 76
+
+$SSR = 14.818520 + 72.802011 + 8.381417 + 42.324958 = 138.326906$, dof = 4
+
+$SSTO = SSE + SSR = 236.5575$, dof = 80
+
+Null hypothesis $H_0$: $\beta_1 = \beta_2 = \beta_3 = \beta_4 = 0$.
+
+Alternative hypothesis $H_1$: At least one $\beta_i, (i = 1,2,3,4)$ is not 0.
+
+Test statistic: F-test: $F^* = \frac{SSR/4}{SSE/76}$ = 26.7555.
+
+Null distribution: Under $H_0$, $\beta_1 = \beta_2 = \beta_3 = \beta_4 = 0$, $F^*$ ~ $F_{0.99, 4, 76}$
+
+Decision rule: if $F^*$ > $F_{0.99, 4, 76}$, reject $H_0$, meaning at least one $\beta_i, (i = 1,2,3,4)$ is not 0
+
+Conclusion: since $F_{0.99, 4, 76} = 3.576520071$, so $F^*$ > $F_{0.99, 4, 76}$, reject $H_0$, so at least one $\beta_i, (i = 1,2,3,4)$ is not 0.
+
+(g) Since $\beta_3$ is not significant, so I decide to exclude $X_3$ from the model:
+
+```{r}
+fit2 <- lm(Y ~ . - X3, data = property)
+summary(fit2)
+```
+
+So the least square estimators are: $\beta_0$ = 12.371, $\beta_1$ = -0.144, $\beta_2$ = 0.267, $\beta_4$ = 0.000.
+
+The fitted regression function:
+
+$$Y = 12.371 - 0.144X_1 + 0.267X_2 + 0.000X_4$$
+
+$MSE$ = $1.131889^2$ = 1.281, $R^2$ = 0.583, $R^2_a$ = 0.567.
+
+The $MSE$ and $R^2_a$ is smaller than model 1.
+
+(h) The standard errors for model 2 are:
+
+$sd(\beta_1) = 0.021$, $sd(\beta_2) = 0.057$, $sd(\beta_4) = 0.000$
+
+The standard errors for model 2 are:
+
+$sd(\beta_1) = 0.021$, $sd(\beta_2) = 0.063$, $sd(\beta_3) = 1.087$, $sd(\beta_4) = 0.000$
+
+So it is a little smaller for $\beta_2$.
+
+The confident intervals for both models:
+
+```{r}
+lapply(list(fit1 = fit1, fit2 = fit2), confint)
+sapply(lapply(list(fit1 = fit1, fit2 = fit2), confint), function(x) {
+  sapply(1:dim(x)[1], function(y) x[y + dim(x)[1]] - x[y])
+})
+```
+
+The confident intervals for $X_1$, $X_2$ and $X_4$ are wider in model 1. There is no $X_3$ in the second model, so we cannot compare it to the first model.
+
+(i) The prediction interval is:
+
+```{r}
+predictions <- lapply(list(fit1 = fit1, fit2 = fit2), function(x) {
+  predict(x, data.frame(X1 = 4, X2 = 10, X3 = 0.1, X4 = 80000), level = 0.99, interval = 'prediction')
+})
+predictions
+```
+
+The prediction interval for model 2 is smaller than that of model 1.
+
+(j) I would prefer model 2, since it excludes an insignificant variable, and gets a more larger $R^2_a$, more narrower prediction interval.
