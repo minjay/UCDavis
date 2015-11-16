@@ -1,0 +1,322 @@
+---
+title: "STA206_hw5"
+author: "Zhen Zhang"
+date: "November 7, 2015"
+output: pdf_document
+---
+
+## Problem 2
+
+(a)
+
+```{r}
+property <- read.table("STA206_hw4_data_property.txt")
+names(property) <- c("Y", paste0("X", 1:4))
+par(mfrow = c(2,3))
+plot_hist <- lapply(1:5, function(i) {
+  x <- property[, i]
+  hist(x, main = paste0("The histogram of ", names(property)[i]))
+})
+```
+
+```{r}
+par(mfrow = c(2,3))
+plot_boxplot <- lapply(1:5, function(i) {
+  x <- property[, i]
+  boxplot(x, main = paste0("The boxplot of ", names(property)[i]))
+})
+```
+
+The distributions for each variable are different. For $X_1$, it has the lowest value at the middle, $X_2$ and $Y$ are all almost normal distributions, $X_3$ is almost monotonically decreasing, and has many outliers.
+
+The scales are different for different variables. For instance, $X_4$ is much larger than the others.
+
+(b)
+
+The sample mean and sample standard deviation of each variable:
+
+```{r}
+(property_mean <- apply(property, 2, mean))
+(property_sd <- apply(property, 2, sd))
+```
+
+The transformation is:
+
+```{r}
+property_tran <- sapply(1:5, function(i) {
+  (property[, i] - property_mean[i]) / (sqrt(nrow(property) - 1) * property_sd[i])
+})
+property_tran <- as.data.frame(property_tran)
+colnames(property_tran) <- c("Y", paste0("X", 1:4))
+```
+
+The tranformed sample mean and sample standard deviation of each variable:
+
+```{r}
+(property_tran_mean <- apply(property_tran, 2, mean))
+(property_tran_sd <- apply(property_tran, 2, sd))
+```
+
+So the mean for the transformed ones are 0, and standard error is $\frac{1}{\sqrt{81 - 1}} = 0.1118034$
+
+(c)
+
+The model is:
+
+$$Y^* = \beta_0 + \beta_1X_1^* + \beta_2X_2^* + \beta_3X_3^* + \beta_4X_4^*$$
+
+Fit the model:
+
+```{r}
+fit1 <- lm(Y ~ ., data = property_tran)
+summary(fit1)
+```
+
+To compare easily, I also fit the howework 4, problem 4 model here:
+
+```{r}
+fit2 <- lm(Y ~ ., data = property)
+summary(fit2)
+```
+
+The intercept is 0.
+
+```{r}
+# coefficients convert to the original model
+fit1$coefficients[2:5] * property_sd[1] / property_sd[2:5]
+```
+
+The results are identical with that of howework 4, problem 4:
+
+```{r}
+# coefficients of the original model
+fit2$coefficients[2:5]
+```
+
+(d)
+
+The standard errors in the standardized model is:
+
+```{r}
+summary(fit1)$coefficients[2:5, 2] 
+```
+
+Now convert it to the original models standard errors, and compare them with that of the original models:
+
+```{r}
+# convert to the original model, sd
+summary(fit1)$coefficients[2:5, 2] * property_sd[1] / property_sd[2:5]
+# original model, sd
+summary(fit2)$coefficients[2:5, 2]
+```
+
+(e)
+
+The SSE for the standardized model is $0.07392^2$ * 76 = 0.41525, and SSTO is 0.41525 / (1 - 0.5847) = 0.9998796, SSR is SSTO - SSE = 0.5846296.
+
+The SSE for the original model is $1.137^2$ * 76 = 98.231, and SSTO is 98.231 / (1 - 0.5847) = 236.5302, SSR is SSTO - SSE = 138.2992.
+
+The relationship:
+
+$$\sigma^{*} = \frac{\sigma}{\sqrt{n-1} * S_Y}$$
+
+So
+
+$$SSE^{*} = \frac{SSE}{(n-1) * S_Y^2}$$
+
+In this question, if we convert SSE to the original model from the standardized model,
+
+```{r}
+0.41525 * (nrow(property) - 1) * property_sd[1]^2
+```
+
+which is identical to the original model's SSE.
+
+(f)
+
+The r square for the standardized model is and the original model are:
+
+```{r}
+sapply(c('r.squared', 'adj.r.squared'), function(x) summary(fit1)[[x]])
+sapply(c('r.squared', 'adj.r.squared'), function(x) summary(fit2)[[x]])
+```
+
+They are the same.
+
+## Problem 3
+
+(a)
+
+The correlation matrix of $\mathbf{r}_{xx}$ is:
+
+```{r}
+(XX <- cor(property_tran[2:5]))
+```
+
+The correlation matrix of $\mathbf{r}_{xy}$ is:
+
+```{r}
+(XY <- cor(property_tran[2:5], property_tran[1]))
+```
+
+Now calculate $X^{'}X$ and $X^{'}Y$:
+
+```{r}
+t(as.matrix(property_tran[2:5])) %*% as.matrix(property_tran[2:5])
+t(as.matrix(property_tran[2:5])) %*% as.matrix(property_tran[1])
+```
+
+Clearly, $X^{'}X$ = $\mathbf{r}_{xx}$, $X^{'}Y$ = $\mathbf{r}_{xy}$
+
+(b)
+
+$\mathbf{r}_{xx}^{-1}$ is:
+
+```{r}
+(XXInv <- solve(XX))
+```
+
+So $VIF_{k}$ are:
+
+```{r}
+(VIF <- sapply(1:4, function(i) XXInv[i, i]))
+```
+
+Now regress $X_{k}$ on the other $X_{i}$ $(1 <= i != k <= 4)$, and get their r squared, use them to calculate $VIF_{k}$, then combine together:
+
+```{r}
+(VIF2 <- sapply(1:4, function(i) {
+  fit <- lm(as.formula(paste(paste0("X",i), '~', '.')), data = property[, -1])
+  1 / (1 - summary(fit)$r.squared)
+}))
+```
+
+They are identical. So, the degree of multicollinearity is not very large, based on $VIF$ value.
+
+(c)
+
+The regression model for relating $Y$ to $X_{4}$ is:
+
+```{r}
+fit3 <- lm(Y ~ X4, data = property)
+summary(fit3)
+```
+
+The regression model for relating $Y$ to $X_{3}$ and $X_{4}$ is:
+
+```{r}
+fit4 <- lm(Y ~ X3 + X4, data = property)
+summary(fit4)
+```
+
+The estimated regression coefficients of $X_{4}$ in these two models are all $8.407*10^{-6}$.
+
+```{r}
+anova(fit3)
+anova(fit4)
+```
+
+So $SSR(X_{4})$ = 67.775 and $SSR(X_{4}|X_{3})$ = 66.858, almost identical. This means that $X_{4}$ is uncorrelated with $X_{3}$. This can be seen when add $X_{3}$ into the regreesion model, but the coefficient of $X_{4}$ does not change.
+
+(d)
+
+The regression model for relating $Y$ to $X_{2}$ is:
+
+```{r}
+fit5 <- lm(Y ~ X2, data = property)
+summary(fit5)
+```
+
+The regression model for relating $Y$ to $X_{2}$ and $X_{4}$ is:
+
+```{r}
+fit6 <- lm(Y ~ X4 + X2, data = property)
+summary(fit6)
+```
+
+The estimated regression coefficients of $X_{2}$ in the first model is 0.27545, in the second model is 0.1470 The second one is smaller, almost half of that of the first model.
+
+```{r}
+anova(fit5)
+anova(fit6)
+```
+
+So $SSR(X_{2})$ = 40.503 and $SSR(X_{2}|X_{4})$ = 9.291, the second one much smaller. This means that $X_{2}$ and $X_{4}$ have high collinearity.
+
+## Problem 4
+
+(a)
+
+```{r}
+with(property, plot(X1, Y))
+```
+
+$Y$ distributes at the two sides of $X_1$.
+
+(b)
+
+```{r}
+# center X1
+property$X1_center <- property$X1 - mean(property$X1)
+fit8 <- lm(Y ~ X1_center + X2 + X4 + I(X1_center^2), data = property)
+summary(fit8)
+```
+
+Model equation: $Y_i = \beta_0 + \beta_1\tilde{X_{i1}} + \beta_2X_{i2} + \beta_3X_{i4} + \beta_4\tilde{X_{i1}^2} + \epsilon$
+
+The fitted model is: $\hat{Y_i} = 10.19 - 0.1818 * \tilde{X_{i1}} + 0.314 * X_{i2} + 8.046 * 10^{-6} * X_{i4} + 0.01415 * \tilde{X_{i1}^2}$
+
+In terms of the original age of property $X_1$: $\hat{Y_i} = 10.19 - 0.1818 * (X_1 - \bar{X_1}) + 0.314 * X_2 + 8.046 * 10^{-6} * X_4 + 0.01415 * (X_1 - \bar{X_1})^2$, which is $\hat{Y_i} = 20.5 - 0.106 * X_1 + 0.314 * X_2 + 8.046 * 10^{-6} * X_4 + 0.01415 * X_1^2$
+
+The observations $Y$ against the fitted values $\hat{Y}$ plot:
+
+```{r}
+plot(fit8$fitted.values, property$Y, xlab = 'fitted values', ylab = 'observations')
+abline(0, 1)
+```
+
+The points scatter evenly along both sides of the regression line, which means this line is a good estimation.
+
+(c)
+
+The model 2 from Homework 4:
+
+```{r}
+fit9 <- lm(Y ~ X1 + X2 + X4, data = property)
+summary(fit9)
+```
+
+Now compare their r square:
+
+```{r}
+sapply(list(fit8 = fit8, fit9 = fit9), function(x) {
+  sapply(c('r.squared', 'adj.r.squared'), function(y) summary(x)[[y]])
+})
+```
+
+Here we can see the r square and adjusted r square of the above model is greater than the model 2 in homework 4. This means the above model is better.
+
+(d)
+
+Model equation: $Y = \beta_0 + \beta_1\tilde{X_{1}} + \beta_2X_2 + \beta_3X_4 + \beta_4\tilde{X_{1}^2}$
+
+Null & alternative hypotheses: $H_0$ : $\beta_4 = 0$ vs $H_1$ : $\beta_4 \neq 0$
+
+Test statistic: t test, with $T^{*} = \frac{\hat{\beta_4}}{se(\hat{\beta_4})} = 2.431$
+
+Null distribution: under $H_0$, $T^{*} \sim t_{(0.975, 76)} = 1.991673$
+
+Decision rule: reject $H_0$ if $|T^{*}| > t_{(0.975, 76)}$
+
+Conclusion: since $T^{*} = 2.431 > t_{(0.975, 76)} = 1.991673$, then reject $H_0$, meaning $\tilde{X_{1}}$ cannot be dropped from the model at level 0.05.
+
+(e)
+
+```{r}
+newdata = data.frame(X1 = 4, X2 = 10, X4 = 80000, X1_center = 4 - mean(property$X1))
+lapply(list(fit8 = fit8, fit9 = fit9), function(x) {
+  predict(x, newdata, interval = "prediction", level = 0.99)
+})
+```
+
+So the predicted value under the model in this problem is 11.93875, and the prediction interval is smaller in the model in this problem, compared with the model 2 in homework 4.
