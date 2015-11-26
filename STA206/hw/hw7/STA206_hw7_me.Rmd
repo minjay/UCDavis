@@ -1,0 +1,405 @@
+---
+title: "STA206 Assignment 7"
+author: "Zhen Zhang"
+date: "November 18, 2015"
+output: pdf_document
+---
+
+```{r global_options, include=FALSE, echo=FALSE, cache=FALSE}
+options(width=70)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, tidy=TRUE, fig.path='Figs/')
+```
+
+## Problem 2
+
+(a)
+
+```{r}
+diabetes <- read.table("diabetes.txt", na.strings = c('NA', ''), header = T)
+```
+
+(b)
+
+```{r}
+drops <- c("id","bp.2s", "bp.2d")
+diabetes <- diabetes[, !(names(diabetes) %in% drops)]
+```
+
+(c)
+
+```{r}
+str(diabetes)
+(quantitative_vars <- unlist(sapply(1:length(diabetes), function(i) {
+  if (!is.factor(diabetes[[i]])) names(diabetes[i])
+})))
+(qualitative_vars <- unlist(sapply(1:length(diabetes), function(i) {
+  if (is.factor(diabetes[[i]])) names(diabetes[i])
+})))
+```
+
+So quantitative variables: chol, stab.glu, hdl, atio, glyhb, age, height, weight, bp.1s, bp.1d, waist, hip, time.ppn
+
+qualitative variables: location, gender, frame
+
+```{r}
+hist(diabetes$glyhb)
+```
+
+It is a little right skewed.
+
+```{r}
+par(mfrow = c(2,2))
+invisible(lapply(quantitative_vars, function(x) hist(diabetes[[x]], main = paste('histogram of', x))))
+```
+
+```{r}
+par(mfrow = c(2,2))
+invisible(lapply(qualitative_vars, function(x) pie(table(diabetes[[x]]), main = paste('pie chart for', x))))
+```
+
+(d)
+
+```{r}
+par(mfrow = c(2,2))
+hist(log(diabetes$glyhb))
+hist(sqrt(diabetes$glyhb))
+hist(1/(diabetes$glyhb))
+```
+
+The last transformation, $\frac{1}{glyhb}$ appears to be the most Normal like among the three.
+
+```{r}
+glyhb_trans <- 1 / diabetes$glyhb
+```
+
+(e)
+
+```{r}
+diabetes$glyhb <- glyhb_trans
+```
+
+(f)
+
+```{r}
+index.na = apply(is.na(diabetes), 1, any)
+diabetes.s = diabetes[index.na == FALSE,]
+```
+
+(g)
+
+```{r}
+pairs(diabetes.s[, quantitative_vars])
+cor(diabetes.s[, quantitative_vars])
+```
+
+Yes, I observe nonlinearity.
+
+(h)
+
+```{r}
+par(mfrow = c(1,2))
+boxplot(glyhb~gender, diabetes.s, main = 'boxplot of glyhb vs gender')
+boxplot(glyhb~frame, diabetes.s, main = 'boxplot of glyhb vs frame')
+```
+
+There is little difference related to female and male, but for frame, the mean of glyhb is increasing with respect to levels of large, medium and small.
+
+(i)
+
+```{r}
+set.seed(10)
+n_samples <- nrow(diabetes.s)
+sample_index <- sample(1:n_samples, n_samples/2)
+diabetes.c = diabetes.s[sample_index, ]
+diabetes.v = diabetes.s[-sample_index, ]
+```
+
+(j)
+
+```{r}
+par(mfrow = c(2,3))
+invisible(lapply(c('glyhb', 'stab.glu', 'ratio', 'age', 'bp.1s', 'waist'), function(x) {
+  boxplot(diabetes.c[[x]], diabetes.v[[x]], names=c('train data', 'test data'), main = paste('boxplot for', x))
+}))
+```
+
+## Problem 3
+
+(a)
+
+```{r}
+fit1 <- lm(glyhb ~ ., data = diabetes.c)
+summary(fit1)
+anova(fit1)
+```
+
+There are 17 regression coefficients. The MSE is 0.001384
+
+```{r}
+library(MASS)
+boxcox(fit1)
+```
+
+A square root transformation is needed.
+
+(b)
+
+```{r}
+library(leaps)
+
+sum_sub <- summary(regsubsets(glyhb ~ ., data = diabetes.c, nbest = 1, nvmax = 16))
+
+n = nrow(diabetes.c)
+p.m = as.integer(rownames(sum_sub$which))+1
+ssto = sum((diabetes.c$glyhb-mean(diabetes.c$glyhb))^2)
+sum_sub$sse = (1-sum_sub$rsq)*ssto
+sum_sub$aic = n*log(sum_sub$sse/n)+2*p.m
+
+
+cri_sum_sub <- sapply(c('sse', 'rsq', 'adjr2', 'cp', 'aic', 'bic'), function(x) {
+  sum_sub[[x]]
+})
+cri_sum_sub
+```
+
+The best model according to each criterion:
+
+```{r}
+apply(cri_sum_sub[, c(1, 4, 5, 6)], 2, which.min)
+apply(cri_sum_sub[, c(2, 3)], 2, which.max)
+```
+
+So the best model with predictors: sse: 16, cp: 5, aic: 5, bic: 3, rsq: 16, adjusted rsq: 6.
+
+The best $C_p$ value:
+
+```{r}
+cri_sum_sub[5, 4]
+```
+
+The $C_p$ value of the best model according $C_p$ criterion is 0.05337754. It is the smallest value of $C_p$, and no overfitting due to smaller than p.
+
+(c)
+
+```{r}
+stepAIC(lm(glyhb ~ 1, data = diabetes.c), scope = list(upper = lm(glyhb ~ ., data = diabetes.c)), direction = 'both')
+fs1 <- lm(glyhb ~ stab.glu + age + waist + ratio, data = diabetes.c)
+```
+
+So the best model is: $glyhb = \beta_0 + \beta_{1}stab.glu + \beta_{2}age + \beta_{3}waist + \beta_{4}ratio$, and the corresponding AIC is -1204.39
+
+The best model's AIC in regsubsets is
+
+```{r}
+cri_sum_sub[5, 5]
+```
+
+They are not identical, and have a large distance.
+
+(d)
+
+```{r}
+plot(fs1, which = 1)
+plot(fs1, which = 2)
+```
+
+The residual vs. fitted value plot shows a square tendancy. The residual Q-Q plot is a little heavy tailed. It seems to be adequate.
+
+## Problem 4
+
+(a)
+
+```{r}
+fit2 <- lm(glyhb ~ .^2, data = diabetes.c)
+summary(fit2)
+anova(fit2)
+```
+
+MSE is 0.001036. There are 136 regression coefficients.
+
+I have concern of overfitting.
+
+(b)
+
+```{r}
+stepAIC(lm(glyhb ~ 1, data = diabetes.c), scope = list(upper = lm(glyhb ~ .^2, data = diabetes.c)), direction = 'both')
+fs2 <- lm(glyhb ~ stab.glu + age + waist + ratio + stab.glu:ratio + age:ratio, data = diabetes.c)
+```
+
+The model is $glyhb ~ \beta_0 + \beta_{1}stab.glu + \beta_{2}age + \beta_{3}waist + \beta_{4}ration + \beta_{5}age*ration + \beta_{6}age*ratio$ now.
+
+The AIC is -1205.14, a little improvement on model fs1.
+
+(c)
+
+```{r}
+plot(fs2, which = 1)
+plot(fs2, which = 2)
+```
+
+The residual vs. fitted value plot still has a pattern of square. The residual Q-Q plot is a little heavy tailed. It seems not to be adequate.
+
+(d)
+
+```{r}
+stepAIC(lm(glyhb ~ 1, data = diabetes.c), scope = list(upper = lm(glyhb ~ .^2, data = diabetes.c)), direction = 'forward')
+```
+
+The model is the same as forward stepwise procedure.
+
+## Problem 5
+
+(a)
+
+```{r}
+fit3 <- lm(glyhb ~ (stab.glu + age + waist + ratio)^2, data = diabetes.c)
+summary(fit3)
+anova(fit3)
+```
+
+There are 11 regression coefficients. MSE is 0.001347
+
+For model fs1:
+
+```{r}
+anova(fs1)
+(fs1_press_p = sum((residuals(fs1))^2 / (1 - influence(fs1)$hat)^2))
+```
+
+$SSE_p$ = 0.240143
+
+$MSE_p$ = 0.001349
+
+$C_p = \frac{0.240143}{0.001347} - (183 - 2 * 5)$ = 5.279881
+
+$Press_p = 0.2535404$
+
+For model fs2:
+
+```{r}
+anova(fs2)
+(fs2_press_p = sum((residuals(fs2))^2 / (1 - influence(fs2)$hat)^2))
+```
+
+$SSE_p$ = 0.233984
+
+$MSE_p$ = 0.001329
+
+$C_p = \frac{0.233984}{0.001347} - (183 - 2 * 7)$ = 4.707498
+
+$Press_p = 0.2534834$
+
+There is little difference between $Press_p$ and $SSE_p$, so there is no evidence of overfitting for fs2. And there is a little bias in fs1, since $C_p$ of fs2 is small than that of fs1.
+
+(b)
+
+```{r}
+fs1_v = lm(glyhb ~ stab.glu + age + waist + ratio, data = diabetes.v)
+fs2_v = lm(glyhb ~ stab.glu + age + waist + ratio + stab.glu:ratio + age:ratio, data = diabetes.v)
+```
+
+```{r}
+fs1$coefficients
+fs1_v$coefficients
+anova(fs1)
+anova(fs1_v)
+```
+
+The coefficients of fs1: values change a little bit, while signs do not change. $MSE$ change from 0.001349 to 0.001320. fs1 is consistent on train and validation data.
+
+```{r}
+fs2$coefficients
+fs2_v$coefficients
+anova(fs2)
+anova(fs2_v)
+```
+
+The coefficients of fs2: values change a lot, some of them even change their signs. $MSE$ change from 0.001329 to 0.001317. fs2 is not consistent on train and validation data.
+
+$MSPE$:
+
+```{r}
+(fs1_mspe <- mean((predict(fs1, diabetes.v[-5]) - diabetes.v[5])^2))
+(fs2_mspe <- mean((predict(fs2, diabetes.v[-5]) - diabetes.v[5])^2))
+```
+
+For model fs1, $Press_{p}/n$ is 0.2535404/183 = 0.001385467 and $SSE_{p}/n$ is 0.240143/183 = 0.001312257. $MSPE_v$ = 0.001329283 is a little bit higher than $SSE_{p}/n$.
+
+For model fs2, $Press_{p}/n$ is 0.2534834/183 = 0.001385155 and $SSE_{p}/n$ is 0.233984/183 = 0.001278601. But $MSPE_v$ = 0.00152642 is much higher than them.
+
+The first model has a smaller $MSPE_v$.
+
+(c)
+
+I will use fs2 on internal validation and fs1 on external validation.
+
+So fs1 will be selected as the final model, since external validation is more reasonable.
+
+```{r}
+fs1_f <- lm(glyhb ~ stab.glu + age + waist + ratio, data = diabetes.s)
+summary(fs1_f)
+anova(fs1_f)
+```
+
+## Problem 6
+
+(a)
+
+```{r}
+plot(fs1_f, which = 1)
+plot(fs1_f, which = 2)
+```
+
+The residual plot is good, and qqplot shows a little tendancy of heavy tailed.
+
+(b)
+
+```{r}
+res_del = residuals(fs1_f) / (1 - influence(fs1_f)$hat)
+deleted_res_del = studres(fs1_f)
+alpha = 0.1
+n = nrow(diabetes.s)
+p = 5
+bon_thre = qt(1 - alpha / (2 * n), n-p-1)
+names(which(abs(deleted_res_del) > bon_thre))
+```
+
+So the 37th, 195th, 334th, 363th observations seem to be outliers.
+
+(c)
+
+```{r}
+hh = influence(fs1_f)$hat
+hh_mean = mean(hh)
+which(hh > 2*p/n)
+```
+
+These are identified as outlying $X$ observations.
+
+```{r}
+plot(fs1_f, which = 5)
+```
+
+(d)
+
+```{r}
+plot(fs1_f, which = 4)
+```
+
+Yes, observation 63, 195 and 334 are influential.
+
+(e)
+
+```{r}
+indices <- which(row.names(diabetes.s) == 195)
+with_influential <- fs1_f$fitted.values[-indices]
+without_influential <- lm(glyhb ~ stab.glu + age + waist + ratio, data = diabetes.s[-indices,])$fitted.values
+```
+
+Now I have the values with and without high influential values. Now calculate the average percent difference:
+
+```{r}
+mean(abs((with_influential - without_influential) / with_influential))
+```
+
+The average absolute percent difference is 1.075285%. So these influential observation indeed makes an influence on the model.

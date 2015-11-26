@@ -1,0 +1,408 @@
+---
+title: "STA206 Assignment 6"
+author: "Zhen Zhang"
+date: "November 11, 2015"
+output: 
+  pdf_document: 
+    fig_height: 6
+    fig_width: 7.5
+---
+
+```{r global_options, include=FALSE, echo=FALSE, cache=FALSE}
+options(width=70)
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, tidy=TRUE, fig.path='Figs/')
+```
+
+# Question 1
+
+(a)
+
+```{r}
+property <- read.table("~/Github/UCDavis/STA206/hw/hw4/STA206_hw4_data_property.txt")
+colnames(property) <- c("Y", paste0("X", 1:4))
+```
+
+linear regression:
+
+```{r}
+fit1 <- lm(Y ~ X1+X2+X4+X3, data = property)
+summary(fit1)
+```
+
+(b)
+
+The coefficient of $X_3$ is 0.6193435:
+
+```{r}
+fit1$coefficients[5]
+```
+
+The coefficient of partial determination $R^{2}_{Y3|124}$ = $\frac{SSR(X_3|X_1,X_2,X_4)}{SSE(X_1,X_2,X_4)}$
+
+```{r}
+anova(fit1)
+```
+
+So here, $SSR(X_3|X_1,X_2,X_4)$ = 0.420, $SSE(X_1,X_2,X_4)$ = 0.420 + 98.231 = 98.651, so $R^{2}_{Y3|124}$ = $\frac{0.420}{98.651}$ = 0.004257433.
+
+Since the coefficient of $X_3$ is larger than 0, so $r_{Y3|124}$ = $\sqrt{0.004257433.}$ = 0.06524901.
+
+$R^{2}_{Y3|124}$ measures the marginal contribution in proportional reduction in SSE by adding $X_3$ into the model. The result shows there is almost no marginal contribution in proportional reduction in SSE by adding $X_3$ into the model.
+
+(c)
+
+```{r}
+fit2 <- lm(Y ~ .-X3, data = property)
+fit3 <- lm(X3 ~. -Y, data = property)
+fit4 <- lm(fit2$residuals ~ fit3$residuals)
+plot(fit3$residuals, fit2$residuals, xlab = 'e(X3|X1,X2,X4)', ylab = 'e(Y|X1,X2,X4)')
+abline(fit4)
+```
+
+The points scatter evenly on both sides of the regression line, and the regression line is almost horizontal, which means there is almost no marginal importance of $X_3$ in reducing the residual variability in $Y$ after accounting for the linear effects in the rest of the X variables.
+
+(d)
+
+```{r}
+fit2 <- lm(Y ~ .-X3, data = property)
+fit3 <- lm(X3 ~. -Y, data = property)
+fit4 <- lm(fit2$residuals ~ fit3$residuals)
+summary(fit4)
+fit4$coefficients[2]
+```
+
+So the regression slope from this regression is 0.6193435, the same as the coefficient of $X_3$ in part (b). This means that $X_3$ is uncorrelated with $X_1$, $X_2$, $X_4$.
+
+(e)
+
+```{r}
+anova(fit4)
+```
+
+The regression sum of squares is 0.420, identical with extra sum of squares $SSR(X_3|X_1,X_2,X_4)$ from the R output of Model 1.
+
+(f)
+
+The correlation coefficient r between the two sets of residuals $e(Y|X_1,X_2,X_4)$ and $e(X_3|X_1, X_2, X_4)$ is: $\frac{0.420}{98.231}$ = 0.004255, almost identical with $r_{Y3|124}$. $r^2$ is also 0.004255.
+
+(g)
+
+```{r}
+fit5 <- lm(property$Y ~ fit3$residuals)
+summary(fit5)
+fit5$coefficients[2]
+```
+
+The fitted regression slope from this regression is 0.6193435, identical with the fitted regression coefficient of $X_3$ from part (b). It means $Y_3$ is indeed uncorrelated with $Y$.
+
+# Question 2
+
+The code is:
+
+```{r, include=FALSE, echo=FALSE, cache=FALSE}
+# initial preparation
+sample_size <- 30
+replicates <- 1000
+true_reg <- function(x) {
+  sin(x) + sin(2 * x)
+}
+par(lwd=2, cex.lab=1.5, cex.main=1.5)
+
+sigma_total <- c(0.5, 2, 5)
+poly_total <- c(1, 2, 3, 5, 7, 9)
+
+x_total <- seq(-3, 3, length.out = sample_size)
+
+poly_function <- function(i) {
+  f <- function(x) {
+    poly(x, degree = i, raw = T)
+  }
+  f
+}
+poly_function_list <- lapply(poly_total, poly_function)
+
+sigma_function <- function(sigma) {
+  rnorm(n = sample_size, mean = 0, sd = sigma)
+}
+```
+
+```{r}
+sigma_for_each <- function(sigma.e) {
+n=30  #sample size
+X=seq(-3,3,length.out=n) # design points: fixed throughout the simulation 
+f.X=sin(X) + sin(2 * X)  
+# the values of the true regression function on the design points.
+
+par(lwd=2, cex.lab=1.5, cex.main=1.5) 
+#customize features of the graph in this R session
+
+# Observations: Y_i=f(x_i)+e_i, e_i ~ i.i.d. N(0, sigma.e), i=1,..., n
+rep=1000 # number of independent data sets (replicates) to be generated 
+
+Y=matrix (0, n, rep)  
+# matrix to record the observations; each column corresponds to one replicate
+
+for (k in 1:rep){
+  set.seed(1234+k*56)    
+  #set seed for the random number generator; for reproducibility of the result 
+  e.c=rnorm(n,0,sigma.e) #generate the random errors
+  Y.c=f.X+e.c   
+  # generate observations for kth replicate: true mean response + error 
+  Y[,k]=Y.c
+}
+
+l.order=c(1, 2, 3, 5, 7, 9) # order of the polynomial models to be fitted
+Y.fit=array(0, dim=c(n,rep,length(l.order))) 
+# record the fitted values; 1st index corresponds to cases; 2nd index corresponds to replicates, 3rd index corresponds to models
+
+
+for (k in 1:rep){
+  Y.c=Y[,k] #observations of the kth replicate
+  
+  for (l in 1:length(l.order)){
+  fit.c=lm(Y.c ~ poly(X, l.order[l], raw=TRUE)) 
+  # fit a polynomial model with order l.order[l]; raw=TRUE means raw polynomial is used; raw= FALSE mean orthogonal polynomial is used
+  Y.fit[,k,l]=fitted(fit.c)
+  } # end of l loop
+  
+}# end of k loop
+
+Y.fit.ave=apply(Y.fit, c(1,3), mean) # average across  replicates (2nd index)
+
+par(mfrow=c(2,3))
+
+for (l in 1:length(l.order)){
+plot(X, f.X, type='n', xlab="x", ylab="f(x)", ylim=range(Y.fit), main=paste(l.order[l],"order poly model")) 
+  # set plot axis label/limit, title, etc.
+
+ for (k in 1:rep){
+    points(X, Y.fit[,k,l], type='l', lwd=1, col=grey(0.6)) 
+   # fitted response curves of lth model: grey
+  }# end of k loop
+
+points(X, f.X, type='l',  col=1) # true mean response: solid black
+points(X, Y.fit.ave[,l], type='l', col=2, lty=2) 
+# averaged (across replicates) fitted mean reponse of the lth model: broken red
+
+}#end l loop
+par(mfrow=c(1,1))
+
+# compare SSE; variance, bias^2 and mean-squared-estimation-error = variance+bias^2 across models
+SSE=matrix(0, rep, length(l.order)) # record SSE for each model on each replicate
+resi=array(0, dim=c(n,rep, length(l.order))) 
+# record residuals : residual := obs-fitted
+error.fit=array(0, dim=c(n,rep, length(l.order))) 
+# record estimation errors in the fitted values: error := fitted value - true mean response
+
+for (l in 1:length(l.order)){
+  temp=Y-Y.fit[,,l]
+  resi[,,l]=temp # residuals
+  SSE[,l]=apply(temp^2,2, sum) # SSE=sum of squared residuals across cases
+  error.fit[,,l]=Y.fit[,,l]-matrix(f.X, n, rep, byrow=FALSE) 
+  # estimation error = fitted value - true mean response
+}
+
+SSE.mean=apply(SSE,2,mean) 
+# mean SSE (averaged over the replicates); this is the empirical version of E(SSE)
+bias=apply(error.fit, c(1,3), mean)  
+# bias= mean (averaged across replicates) errors in the fitted values
+variance=apply(Y.fit, c(1,3), var) 
+# variance (across replicates) of the fitted values
+err2.mean=apply(error.fit^2,c(1,3), mean) 
+# mean-squared-estimation errors: squared estimation errors of the fitted values averaged across replicates
+
+# bias, variance, err2.mean are calculated on each design point/case for each model
+# to facilitate comparison among models, we sum them across the design points/cases to produce an overall quantity (each) for each model
+bias2.ave=apply(bias^2, 2, mean) 
+# average bias^2 across design points  for each model: overall in-sample bias
+variance.ave=apply(variance, 2,mean) 
+# average variance across design points for each model: overall in-sample variance
+err2.mean.ave=apply(err2.mean,2, mean) 
+# average mean-squared-estimation-error across design points for each model: over-all in-sample msee
+
+cat("\n")
+cat(sprintf('This is the model for error variance %g', sigma.e))
+cat("\n")
+print_matrix <- data.frame('order' = l.order, 'sse' = SSE.mean, 'bias square' = bias2.ave, 'variance' = variance.ave, 'msee' = err2.mean.ave)
+print(print_matrix)
+
+
+return(print_matrix)
+}
+sigma_total <- c('0.5' = 0.5, '2' = 2, '5' = 5)
+print_matrix_sigma_each <- invisible(lapply(sigma_total, sigma_for_each))
+```
+
+Now answer the questions:
+
+(a) I think there is no correct model, since under different noise levels, I will get different best model, which means best model is closely related to the noise level.
+
+(b) The (in-sample) model variance for each of these models are:
+
+```{r}
+analysis <- function(name) {
+  print_matrix_order_name <- sapply(print_matrix_sigma_each, '[[', name)
+  indices <- c(1, 2, 3, 5, 7, 9)
+  row.names(print_matrix_order_name) <- indices
+  print(print_matrix_order_name)
+  opar <- par()
+  par(mfrow = c(2,2))
+  cat("\n")
+  cat(sprintf("This is the plot for %s", name))
+  cat("\n")
+  
+  invisible(lapply(1:3, function(i) {
+    plot(indices, print_matrix_order_name[, i], type = 'b', xlab = 'orders', ylab = name, main = paste(name, "with error variance", sigma_total[i]))
+  }))
+  
+  invisible(print_matrix_order_name)
+}
+
+analysis('variance')
+```
+
+It is clear that the (in-sample) model variance changes with the error variance.
+
+(c) The (in-sample) model bias for each of these models are:
+
+```{r}
+analysis('bias.square')
+```
+
+The (in-sample) model bias almost does not change with the error variance.
+
+(d)
+
+```{r}
+print_matrix_sigma_each
+```
+
+When error variance is 0.5, bias plays a dominant role in the (in-sample) mean-squared-estimation-error, with error variance 2, bias is still larger than variance, but not as dominant as that of error variance 0.5. While error variance is 5, variance instead plays a dominant role in the (in-sample) mean-squared-estimation-error.
+
+The reason is, witht a low error variance, the bias is larger than variance, then bias will play a dominant role. With a high error variance, the variance in a model increases very fast. So with the increase of polynomial order, the increase in variance is much larger than the decrease in bias, which means variance will play a dominant role.
+
+(e)
+
+```{r}
+print_matrix_order_msee <- analysis('msee')
+msee_min <- apply(print_matrix_order_msee, 2, function(i) {
+  as.numeric(rownames(print_matrix_order_msee)[order(i)[1]])
+})
+print(msee_min)
+```
+
+At error variance 0.5, the best model is order 7, At error variance 2, the best model is order 5, At error variance 5, the best model is order 1.
+
+The selection of best model is related with who plays a dominant role in msee. When bias plays a dominant role, we should select the model with smaller bias, which is order 7. When variance plays a dominant role, we should select the model with smaller variance, which is order 1. For error variance 2, we should balance the bias and variance, which is order 5.
+
+(f)
+
+```{r}
+analysis('sse')
+```
+
+Yes, I observe different patterns. Although all of them are monotonically decreasing, when the noise level is lower, at the beginning and the end, it decrease very slowly, and in the middle, it decrease very quickly. In contrast, when the noise level is higher, it decrease at a constant rate.
+
+The reason, I think, is when noise level is small, the variance does not increase to much, so sse will not increase very much at the beginnning. When the noise level is high, the variance will increase more at the beginning.
+
+# Question 3
+
+(a)
+
+```{r}
+cars <- read.csv("~/Github/UCDavis/STA206/hw/hw6/Cars.csv", header = T)
+pairs(cars)
+```
+
+The variable cylinders, year.of.make and country.code are all points on some particular lines, which show strong pattern of categorical variable.
+
+(b)
+
+```{r}
+str(cars)
+```
+
+horsepower has been treated as qualitative, but country code has been treated quantitative. In addition, cylinders should also be categorized.
+
+To summary, the variables should be encoded as:
+
+quantitative: mpg, displacement, horsepower, weight, acceleration
+
+qualitative: cylinders, year.of.make, country.code
+
+(c)
+
+```{r}
+cars <- read.csv("~/Github/UCDavis/STA206/hw/hw6/Cars.csv", header = T, na.strings = '?')
+cars$country.code <- as.factor(cars$country.code)
+cars$cylinders <- as.factor(cars$cylinders)
+cars$year.of.make <- as.factor(cars$year.of.make)
+```
+
+(d)
+
+```{r}
+quantitative_vars <- c('mpg', 'displacement', 'horsepower', 'weight', 'acceleration')
+qualitative_vars <- c('cylinders', 'year.of.make', 'country.code')
+
+par(mfrow = c(2,3))
+invisible(lapply(quantitative_vars, function(x) hist(cars[[x]], xlab = x, main = paste("Histogram of", x))))
+```
+
+Since the data is right skewed, so we want to use log transformation. To verify this, I use boxcox plot:
+
+```{r}
+library(MASS)
+boxcox(mpg ~. , data = cars[, quantitative_vars])
+```
+
+The best order indicated by the plot is -0.5, so negative square root transformation is reasonable.
+
+```{r}
+cars_trans <- cars
+cars_trans$mpg <- (cars_trans$mpg)^(-0.5)
+```
+
+(e)
+
+```{r}
+pairs(cars_trans[, quantitative_vars])
+```
+
+Acceleration is not linear.
+
+(f)
+
+```{r}
+par(mfrow = c(2,2))
+invisible(lapply(qualitative_vars, function(x) pie(table(cars[, x]), main = paste("Pie chart for", x))))
+```
+
+```{r}
+par(mfrow = c(2,2))
+invisible(lapply(qualitative_vars, function(x) boxplot(cars_trans$mpg ~ cars_trans[, x], main = paste("Boxplot for", x))))
+```
+
+I observe that, the trend for cylinders in downloading, while the trends for year.of.make and country.code is increasing.
+
+(g)
+
+```{r}
+fit1 <- lm(mpg ~ ., data = cars_trans)
+summary(fit1)
+plot(fit1, which = 1)
+```
+
+I see that acceleration and displacement has little impact on mpg. So remove it from the model:
+
+```{r}
+fit2 <- lm(mpg ~ .-displacement-acceleration, data = cars_trans)
+summary(fit2)
+plot(fit2, which = 1)
+```
+
+The adjusted $r^2$ decreases only a little bit, so fit2 is preferred than fit1.
+
+The residual plot seems to indicate the model is fitting well now, except the line is a little downwards sloping.
+
+The next step is to consider other models, for instance, regression tree or k-nearest-neighbour. Also, cross validation should be performed to test which model is the best.

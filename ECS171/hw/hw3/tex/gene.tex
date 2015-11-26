@@ -1,0 +1,1126 @@
+
+% Default to the notebook output style
+
+    
+
+
+% Inherit from the specified cell style.
+
+
+
+
+    
+\documentclass{article}
+
+    
+    
+    \usepackage{graphicx} % Used to insert images
+    \usepackage{adjustbox} % Used to constrain images to a maximum size 
+    \usepackage{color} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{eurosym} % defines \euro
+    \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage[utf8x]{inputenc} % Allow utf-8 characters in the tex document
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range 
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage{ulem} % ulem is needed to support strikethroughs (\sout)
+    
+
+    
+    
+    \definecolor{orange}{cmyk}{0,0.4,0.8,0.2}
+    \definecolor{darkorange}{rgb}{.71,0.21,0.01}
+    \definecolor{darkgreen}{rgb}{.12,.54,.11}
+    \definecolor{myteal}{rgb}{.26, .44, .56}
+    \definecolor{gray}{gray}{0.45}
+    \definecolor{lightgray}{gray}{.95}
+    \definecolor{mediumgray}{gray}{.8}
+    \definecolor{inputbackground}{rgb}{.95, .95, .85}
+    \definecolor{outputbackground}{rgb}{.95, .95, .95}
+    \definecolor{traceback}{rgb}{1, .95, .95}
+    % ansi colors
+    \definecolor{red}{rgb}{.6,0,0}
+    \definecolor{green}{rgb}{0,.65,0}
+    \definecolor{brown}{rgb}{0.6,0.6,0}
+    \definecolor{blue}{rgb}{0,.145,.698}
+    \definecolor{purple}{rgb}{.698,.145,.698}
+    \definecolor{cyan}{rgb}{0,.698,.698}
+    \definecolor{lightgray}{gray}{0.5}
+    
+    % bright ansi colors
+    \definecolor{darkgray}{gray}{0.25}
+    \definecolor{lightred}{rgb}{1.0,0.39,0.28}
+    \definecolor{lightgreen}{rgb}{0.48,0.99,0.0}
+    \definecolor{lightblue}{rgb}{0.53,0.81,0.92}
+    \definecolor{lightpurple}{rgb}{0.87,0.63,0.87}
+    \definecolor{lightcyan}{rgb}{0.5,1.0,0.83}
+    
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatability definitions
+    \def\gt{>}
+    \def\lt{<}
+    % Document parameters
+    \title{gene}
+    
+    
+    
+
+    % Pygments definitions
+    
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@sd\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\expandafter\def\csname PY@tok@ni\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@o\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@nl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@mb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@gp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % Exact colors from NB
+    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
+    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
+
+
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=blue,
+      linkcolor=darkorange,
+      citecolor=darkgreen,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+    \begin{document}
+    
+    
+    \maketitle
+    
+    
+
+    
+    \section{ECS 171 Assignment 3}\label{ecs-171-assignment-3}
+
+\subsection{Zhen Zhang (last four digit of ID:
+5403)}\label{zhen-zhang-last-four-digit-of-id-5403}
+
+\subsection{Nov 22, 2015}\label{nov-22-2015}
+
+    First of all, I shall say that before doing the main job in python, I
+use R to process the data. The script is listed below, with doing these
+jobs one by one:
+
+    \begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# read the data, and use regular expression to extract some identifiers}
+\NormalTok{gene <-}\StringTok{ }\KeywordTok{scan}\NormalTok{(}\StringTok{"ecs171.dataset.txt"}\NormalTok{, }\DataTypeTok{what =} \StringTok{''}\NormalTok{)}
+\NormalTok{pattern <-}\StringTok{ }\KeywordTok{grep}\NormalTok{(}\StringTok{"T[0-9]\{3\}"}\NormalTok{, gene)}
+\NormalTok{gene_index_start <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, pattern)}
+\NormalTok{gene_index_end <-}\StringTok{ }\KeywordTok{c}\NormalTok{(pattern -}\StringTok{ }\DecValTok{1}\NormalTok{, }\KeywordTok{length}\NormalTok{(gene))}
+\NormalTok{row_num <-}\StringTok{ }\KeywordTok{length}\NormalTok{(gene_index_start)}
+\NormalTok{col_num <-}\StringTok{ }\NormalTok{gene_index_end[}\DecValTok{1}\NormalTok{] -}\StringTok{ }\NormalTok{gene_index_start[}\DecValTok{1}\NormalTok{] +}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# generate the raw data}
+\NormalTok{gene_data_raw <-}\StringTok{ }\KeywordTok{Map}\NormalTok{(function(i, j) gene[i:j], gene_index_start, gene_index_end)}
+
+\NormalTok{colname <-}\StringTok{ }\NormalTok{gene_data_raw[[}\DecValTok{1}\NormalTok{]]}
+
+\CommentTok{# if the data is shorter than the required length, add 0 at last}
+\KeywordTok{invisible}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\DecValTok{1}\NormalTok{:row_num, function(i) \{}
+  \NormalTok{if (}\KeywordTok{length}\NormalTok{(gene_data_raw[[i]]) !=}\StringTok{ }\NormalTok{col_num) gene_data_raw[[i]] <<-}\StringTok{ }\KeywordTok{c}\NormalTok{(gene_data_raw[[i]], }\DecValTok{0}\NormalTok{)}
+\NormalTok{\}))}
+
+\CommentTok{# combine them into a dataframe}
+\NormalTok{gene_data <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\KeywordTok{do.call}\NormalTok{(}\StringTok{'rbind'}\NormalTok{, gene_data_raw), }\DataTypeTok{stringsAsFactors =} \OtherTok{FALSE}\NormalTok{)}
+
+\CommentTok{# drop the first row, which is the name}
+\NormalTok{gene_data <-}\StringTok{ }\NormalTok{gene_data[-}\DecValTok{1}\NormalTok{, ]}
+
+\CommentTok{# add column name}
+\KeywordTok{colnames}\NormalTok{(gene_data) <-}\StringTok{ }\NormalTok{colname}
+
+\CommentTok{# drop the last column}
+\NormalTok{gene_data <-}\StringTok{ }\NormalTok{gene_data[, -}\KeywordTok{length}\NormalTok{(gene_data)]}
+
+\CommentTok{# generate the combination of Medium and Stress data, which will be used in Question 5.}
+\NormalTok{Medium_Stress <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{Map}\NormalTok{(paste, gene_data$Medium, gene_data$Stress, }\DataTypeTok{sep =} \StringTok{'.'}\NormalTok{))}
+\NormalTok{gene_data[, }\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{Medium_Stress}
+\KeywordTok{names}\NormalTok{(gene_data)[}\DecValTok{1}\NormalTok{] <-}\StringTok{ 'Medium_Stress'}
+\NormalTok{gene_data$Medium_Stress <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(gene_data$Medium_Stress))}
+
+\CommentTok{# transform relevant data to double type}
+\KeywordTok{invisible}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\DecValTok{2}\NormalTok{:}\DecValTok{5}\NormalTok{, function(i) \{}
+  \NormalTok{gene_data[[i]] <<-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(gene_data[[i]]))}
+\NormalTok{\}))}
+
+\CommentTok{# generate the final csv file}
+\KeywordTok{write.csv}\NormalTok{(gene_data, }\StringTok{"~/Desktop/gene_data.csv"}\NormalTok{, }\DataTypeTok{row.names =} \NormalTok{F)}
+\end{Highlighting}
+\end{Shaded}
+
+    Now let's begin this homework, and all the following codes are written
+in python.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}1}]:} \PY{c}{\PYZsh{} import the needed modules}
+        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+        \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+        \PY{k+kn}{import} \PY{n+nn}{warnings}
+        \PY{n}{warnings}\PY{o}{.}\PY{n}{filterwarnings}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{ignore}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}2}]:} \PY{c}{\PYZsh{} read into the data}
+        \PY{n}{gene} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{/Users/Elliot/Desktop/gene\PYZus{}data.csv}\PY{l+s}{\PYZdq{}}\PY{p}{,} \PY{n}{header} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}
+        \PY{n}{gene}\PY{o}{.}\PY{n}{data} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{l+m+mi}{6}\PY{p}{:}\PY{p}{]}
+\end{Verbatim}
+
+    I need to split the data, and following python's convention, I will give
+the splitted data some properties, including data, growthRate and so on.
+
+    \subsection{Question 1}\label{question-1}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}3}]:} \PY{c}{\PYZsh{} import the needed modules used in this question}
+        \PY{k+kn}{from} \PY{n+nn}{matplotlib} \PY{k}{import} \PY{n}{pyplot} \PY{k}{as} \PY{n}{plt}
+        \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{linear\PYZus{}model} \PY{k}{import} \PY{n}{Lasso}\PY{p}{,} \PY{n}{LassoCV}
+        \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{cross\PYZus{}validation} \PY{k}{import} \PY{n}{KFold}
+\end{Verbatim}
+
+    Generate the cross validation folds:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}4}]:} \PY{c}{\PYZsh{} cross\PYZhy{}validation preparation}
+        \PY{n}{kf} \PY{o}{=} \PY{n}{KFold}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{n\PYZus{}folds}\PY{o}{=}\PY{l+m+mi}{10}\PY{p}{)}
+\end{Verbatim}
+
+    Fit the model
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}5}]:} \PY{c}{\PYZsh{} fit}
+        \PY{n}{lasso\PYZus{}model} \PY{o}{=} \PY{n}{LassoCV}\PY{p}{(}\PY{n}{cv}\PY{o}{=}\PY{l+m+mi}{10}\PY{p}{,} \PY{n}{copy\PYZus{}X}\PY{o}{=}\PY{k}{True}\PY{p}{,} \PY{n}{normalize}\PY{o}{=}\PY{k}{True}\PY{p}{)}
+        \PY{n}{lasso\PYZus{}fit} \PY{o}{=} \PY{n}{lasso\PYZus{}model}\PY{o}{.}\PY{n}{fit}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{GrowthRate}\PY{p}{)}
+\end{Verbatim}
+
+    Let's look at a plot to see the general tendency of the result
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}6}]:} \PY{o}{\PYZpc{}}\PY{k}{matplotlib} inline
+        \PY{n}{plt}\PY{o}{.}\PY{n}{rcParams}\PY{p}{[}\PY{l+s}{\PYZsq{}}\PY{l+s}{figure.figsize}\PY{l+s}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{p}{(}\PY{l+m+mi}{12}\PY{p}{,} \PY{l+m+mi}{8}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}7}]:} \PY{c}{\PYZsh{} Note here I made a negative log transformation to express the plot easier to see and interpret}
+        \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{lasso\PYZus{}fit}\PY{o}{.}\PY{n}{alphas\PYZus{}}\PY{p}{)}\PY{p}{,} \PY{n}{lasso\PYZus{}fit}\PY{o}{.}\PY{n}{mse\PYZus{}path\PYZus{}}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}\PY{p}{)}
+        \PY{n}{plt}\PY{o}{.}\PY{n}{axvline}\PY{p}{(}\PY{o}{\PYZhy{}}\PY{n}{np}\PY{o}{.}\PY{n}{log}\PY{p}{(}\PY{n}{lasso\PYZus{}fit}\PY{o}{.}\PY{n}{alpha\PYZus{}}\PY{p}{)}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s}{\PYZsq{}}\PY{l+s}{red}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+            \begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}7}]:} <matplotlib.lines.Line2D at 0x1131f4630>
+\end{Verbatim}
+        
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_15_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    See the value of optimal constrained parameter value
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}8}]:} \PY{n+nb}{print}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{The optimal optimal constrained parameter value is: }\PY{l+s}{\PYZsq{}}\PY{p}{,} \PY{n}{lasso\PYZus{}fit}\PY{o}{.}\PY{n}{alpha\PYZus{}}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The optimal optimal constrained parameter value is:  0.000241053628825
+    \end{Verbatim}
+
+    Now let's see which coefficient is not equal to zero:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}9}]:} \PY{n}{lasso\PYZus{}coefs\PYZus{}index} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{lasso\PYZus{}fit}\PY{o}{.}\PY{n}{coef\PYZus{}} \PY{o}{!=} \PY{l+m+mi}{0}\PY{p}{)}
+        \PY{n}{lasso\PYZus{}coefs\PYZus{}name} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{o}{.}\PY{n}{columns}\PY{p}{[}\PY{n}{lasso\PYZus{}coefs\PYZus{}index}\PY{p}{]}\PY{o}{.}\PY{n}{tolist}\PY{p}{(}\PY{p}{)}
+        \PY{n+nb}{print}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{The features that have non\PYZhy{}zero coefficients are:}\PY{l+s}{\PYZsq{}}\PY{p}{)} 
+        \PY{n+nb}{print}\PY{p}{(}\PY{n}{lasso\PYZus{}coefs\PYZus{}name}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The features that have non-zero coefficients are:
+['b2353', 'b1890', 'b4131', 'b1452', 'b2505', 'b1262', 'b1463', 'b3688', 'b1673', 'b0326', 'b0440', 'b3566', 'b0621', 'b0316', 'b3170', 'b2316', 'b0303', 'b4440', 'b0724', 'b3325', 'b2059', 'b3707', 'b1044', 'b1041', 'b4450', 'b4452', 'b3829', 'b3890', 'b3637', 'b2684', 'b1926', 'b1924', 'b3693', 'b2118', 'b1148', 'b0814', 'b0565', 'b4426', 'b4251', 'b4202', 'b3525', 'b1719', 'b2587', 'b3650', 'b3990', 'b1168', 'b1160', 'b1587', 'b3332', 'b1968', 'b2909', 'b2278', 'b3876', 'b2702', 'b3441', 'b3261', 'b2643', 'b1497', 'b1729', 'b1724', 'b0741', 'b2034', 'b2036', 'b4316', 'b2905', 'b3390', 'b3665', 'b3931', 'b1237', 'b1948', 'b2528', 'b4189', 'b2741', 'b1138', 'b1398', 'b3636', 'b4299', 'b1504', 'b3640', 'b3339', 'b0016', 'b0673', 'b1546', 'b3980', 'b3276', 'b0665', 'b4165', 'b0265', 'b0668', 'b1994', 'b4512', 'b0256', 'b3968', 'b3970', 'b0540']
+    \end{Verbatim}
+
+    \subsection{Question 2}\label{question-2}
+
+    Here I will talk about my bootstrap algorithm.
+
+\textbf{Algorithm}:
+
+First of all, I will do the bootstrap \texttt{bs\_num} times. In each
+loop, I select the number of samples equal to \texttt{n\_samples} (the
+number of the original sample), and based on these selecte indices
+(\texttt{bs\_index}) and the lasso regularized features
+(\texttt{lasso\_coefs\_index}) from the previous question, I can
+construct the bootstrap sample (\texttt{X\_bs}). Then use lasso method
+to predict the output of the whole original data, then I can get the
+prediction (\texttt{lasso\_bs\_pred}). Over all loops, I can get a
+matrix of dimension \texttt{n\_samples} * \texttt{bs\_num}.
+
+Now, I can first sort all the results each row (each sample), then
+select the one ranks 2.5\% and 97.5\% in each sample, which will be the
+bootstrap lower value and upper value for the 95\% confidence interval.
+
+\textbf{Assumption}:
+
+Each sample is a valid representation of the population.
+
+Each sample is identical and independent distribution (i.i.d).
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}10}]:} \PY{c}{\PYZsh{} bs is short for bootstrap}
+         \PY{n}{bs\PYZus{}num} \PY{o}{=} \PY{l+m+mi}{100}
+         \PY{n}{n\PYZus{}samples} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{GrowthRate}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+         \PY{n}{gene\PYZus{}bs\PYZus{}pred} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{empty}\PY{p}{(}\PY{p}{(}\PY{n}{n\PYZus{}samples}\PY{p}{,} \PY{n}{bs\PYZus{}num}\PY{p}{)}\PY{p}{)}
+         \PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{[}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{o}{.}\PY{n}{columns}\PY{p}{[}\PY{n}{lasso\PYZus{}coefs\PYZus{}index}\PY{p}{]}\PY{p}{]}
+         
+         \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{bs\PYZus{}num}\PY{p}{)}\PY{p}{:}
+             \PY{n}{bs\PYZus{}index} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{choice}\PY{p}{(}\PY{n}{n\PYZus{}samples}\PY{p}{,} \PY{n}{n\PYZus{}samples}\PY{p}{,} \PY{n}{replace}\PY{o}{=}\PY{k}{True}\PY{p}{)}
+             \PY{n}{X\PYZus{}bs} \PY{o}{=} \PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{n}{bs\PYZus{}index}\PY{p}{,} \PY{p}{:}\PY{p}{]}
+             \PY{n}{y\PYZus{}bs} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{GrowthRate}\PY{p}{[}\PY{n}{bs\PYZus{}index}\PY{p}{]}
+             \PY{n}{lasso\PYZus{}bs\PYZus{}pred} \PY{o}{=} \PY{n}{lasso\PYZus{}model}\PY{o}{.}\PY{n}{fit}\PY{p}{(}\PY{n}{X\PYZus{}bs}\PY{p}{,} \PY{n}{y\PYZus{}bs}\PY{p}{)}\PY{o}{.}\PY{n}{predict}\PY{p}{(}\PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data}\PY{p}{)}
+             \PY{n}{gene\PYZus{}bs\PYZus{}pred}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{lasso\PYZus{}bs\PYZus{}pred}
+             
+         \PY{n}{gene\PYZus{}bs\PYZus{}pred\PYZus{}sort} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{sort}\PY{p}{(}\PY{n}{gene\PYZus{}bs\PYZus{}pred}\PY{p}{)}
+         \PY{n}{gene\PYZus{}bs\PYZus{}pred\PYZus{}result} \PY{o}{=} \PY{n}{gene\PYZus{}bs\PYZus{}pred\PYZus{}sort}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{p}{[}\PY{l+m+mi}{3}\PY{p}{,} \PY{l+m+mi}{97}\PY{p}{]}\PY{p}{]}
+         
+         \PY{n+nb}{print}\PY{p}{(}\PY{n}{gene\PYZus{}bs\PYZus{}pred\PYZus{}result}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+[[ 0.60079666  0.6378432 ]
+ [ 0.61049767  0.65339268]
+ [ 0.60645946  0.64422516]
+ [ 0.70600731  0.77084599]
+ [ 0.67327522  0.70573273]
+ [ 0.68988926  0.72669264]
+ [ 0.43178885  0.48330707]
+ [ 0.46152625  0.49407513]
+ [ 0.4672918   0.49847266]
+ [ 0.4683631   0.4988734 ]
+ [ 0.47314322  0.5045316 ]
+ [ 0.46680257  0.50248761]
+ [ 0.43345448  0.489958  ]
+ [ 0.43345448  0.489958  ]
+ [ 0.43099659  0.50271311]
+ [ 0.45623726  0.50014108]
+ [ 0.41428568  0.48190931]
+ [ 0.44246028  0.49537041]
+ [ 0.48353099  0.5340476 ]
+ [ 0.46639823  0.53589208]
+ [ 0.48705988  0.76859314]
+ [ 0.3217138   0.6499975 ]
+ [ 0.47333042  0.52820138]
+ [ 0.34620826  0.6480973 ]
+ [ 0.37202753  0.40721005]
+ [ 0.36825416  0.41364717]
+ [ 0.37683095  0.42543649]
+ [ 0.33533449  0.44074919]
+ [ 0.4068336   0.44579194]
+ [ 0.37118433  0.464534  ]
+ [ 0.44963209  0.47766856]
+ [ 0.45730868  0.4891397 ]
+ [ 0.44688932  0.50135854]
+ [ 0.45828957  0.50426907]
+ [ 0.47377107  0.51325002]
+ [ 0.46482616  0.50376451]
+ [ 0.62078094  0.65571583]
+ [ 0.60706669  0.64098726]
+ [ 0.63230004  0.67266641]
+ [ 0.59384872  0.64141587]
+ [ 0.60623839  0.64550507]
+ [ 0.56980925  0.64669662]
+ [ 0.62224793  0.68182475]
+ [ 0.37045069  0.97074242]
+ [ 0.67726766  0.7268884 ]
+ [ 0.68395986  0.72103193]
+ [ 0.67945355  0.72426457]
+ [ 0.24123736  0.30161473]
+ [ 0.25335944  0.33959153]
+ [ 0.2950368   0.34324766]
+ [ 0.29357728  0.36956827]
+ [ 0.40061841  0.47589585]
+ [ 0.41326564  0.4986225 ]
+ [ 0.41170727  0.47808561]
+ [ 0.29124673  0.52254403]
+ [ 0.10213294  0.19365921]
+ [ 0.1243096   0.20368538]
+ [ 0.18531798  0.26908826]
+ [ 0.3533788   0.40398342]
+ [ 0.20045925  0.24168558]
+ [ 0.21570762  0.25884199]
+ [ 0.20938494  0.25185316]
+ [ 0.15735748  0.31790334]
+ [ 0.12485299  0.2529779 ]
+ [ 0.15138975  0.25888247]
+ [ 0.11001208  0.2843101 ]
+ [ 0.34528868  0.45420656]
+ [ 0.32995863  0.40338915]
+ [ 0.37107444  0.43844274]
+ [ 0.3320154   0.39659607]
+ [ 0.33861895  0.39308612]
+ [ 0.34049281  0.38814181]
+ [ 0.352577    0.40910445]
+ [ 0.3332708   0.40457743]
+ [ 0.3628511   0.41027048]
+ [ 0.17314462  0.28593983]
+ [ 0.255175    0.32542621]
+ [ 0.23119773  0.29187865]
+ [ 0.19013608  0.30521651]
+ [ 0.23863126  0.31725473]
+ [ 0.21401301  0.30266643]
+ [ 0.0975463   0.16583652]
+ [ 0.1012194   0.19899578]
+ [ 0.10455617  0.23280175]
+ [ 0.0539116   0.15994388]
+ [ 0.11132889  0.17897694]
+ [ 0.0433974   0.68952171]
+ [ 0.06607152  0.12182055]
+ [ 0.08253911  0.1324048 ]
+ [ 0.05540445  0.11716323]
+ [ 0.08861284  0.14444651]
+ [ 0.02199712  0.09727461]
+ [ 0.04662368  0.11030945]
+ [-0.00920061  0.07172699]
+ [ 1.19902223  1.28997628]
+ [ 1.16795976  1.28423665]
+ [ 1.11112729  1.50642585]
+ [ 1.15479744  1.32470909]
+ [ 1.22273649  1.2927238 ]
+ [ 0.58574416  0.68379836]
+ [ 0.59777406  0.65335592]
+ [ 0.59582104  0.66235727]
+ [ 0.64247333  0.70238423]
+ [ 0.56212779  0.70461669]
+ [ 0.63409115  0.71161482]
+ [ 0.15314746  0.47793652]
+ [ 0.1701859   0.48877465]
+ [ 0.27876299  0.65601188]
+ [ 0.00874264  0.17769519]
+ [ 0.10732558  0.2770593 ]
+ [ 0.14371058  0.27032204]
+ [ 0.11163261  0.33985501]
+ [ 0.0519918   0.41721732]
+ [ 0.16874892  0.38670247]
+ [ 0.08661757  0.17709105]
+ [ 0.0732238   0.31737588]
+ [ 0.14301807  0.25420155]
+ [ 0.09515459  0.14824428]
+ [ 0.09981855  0.15029836]
+ [ 0.07001355  0.1557102 ]
+ [ 0.10338175  0.16067499]
+ [ 0.10232789  0.16142176]
+ [ 0.04462867  0.1286822 ]
+ [ 0.08072236  0.1445466 ]
+ [ 0.09788782  0.15126642]
+ [ 0.10166659  0.16622541]
+ [ 0.09076169  0.14444214]
+ [ 0.10044322  0.16552702]
+ [ 0.08508728  0.19289526]
+ [ 0.45252317  0.80199114]
+ [ 0.4715215   0.71129048]
+ [ 0.30029481  0.69665409]
+ [ 0.52714106  0.77687741]
+ [ 0.51293747  0.87156862]
+ [ 0.48304953  0.73995966]
+ [ 0.40351005  0.59873651]
+ [ 0.34929786  0.65172234]
+ [ 0.49560546  0.76913504]
+ [ 0.53619432  0.72439752]
+ [ 0.18419483  0.25248869]
+ [ 0.5509977   0.6277938 ]
+ [ 0.50967126  0.83099283]
+ [ 0.39300361  0.43311305]
+ [ 0.38975792  0.42060333]
+ [ 0.37681293  0.4132786 ]
+ [ 0.38220732  0.41954822]
+ [ 0.3996164   0.41923537]
+ [ 0.37127303  0.4164622 ]
+ [ 0.36905695  0.40843571]
+ [ 0.36485545  0.39674961]
+ [ 0.3936861   0.41604959]
+ [ 0.37467028  0.40754652]
+ [ 0.39135767  0.4136407 ]
+ [ 0.38712747  0.44045721]
+ [ 0.3746371   0.40411885]
+ [ 0.3673239   0.38801153]
+ [ 0.4058544   0.48217256]
+ [ 0.1937552   0.27380398]
+ [ 0.5846476   0.70315035]
+ [ 0.53301632  0.60693865]
+ [ 0.53592979  0.60496527]
+ [ 0.24196132  0.30818149]
+ [ 0.26274309  0.33980131]
+ [ 0.26982101  0.35479431]
+ [ 0.21213672  0.29854755]
+ [ 0.16575757  0.23548758]
+ [ 0.22050629  0.33438882]
+ [ 0.11101277  0.43373043]
+ [ 0.29734736  0.45017653]
+ [ 0.28842978  0.3489017 ]
+ [ 0.20121946  0.36865559]
+ [ 0.51571257  0.61204554]
+ [ 0.20661756  0.37504634]
+ [ 0.26778795  0.48341264]
+ [ 0.47198364  0.60112985]
+ [ 0.46002591  0.69374054]
+ [ 0.42766007  0.60365341]
+ [ 0.46756224  0.54924289]
+ [ 0.42860072  0.51692897]
+ [ 0.19051409  0.23136264]
+ [ 0.18694794  0.21828075]
+ [ 0.19995562  0.22442595]
+ [ 0.18989785  0.22384015]
+ [ 0.17806147  0.20700236]
+ [ 0.1947593   0.23771555]
+ [ 0.18552646  0.22662168]
+ [ 0.17386629  0.21837001]
+ [ 0.19807735  0.22312054]
+ [ 0.18228541  0.20448211]
+ [ 0.16931399  0.19960045]
+ [ 0.18755388  0.22599847]
+ [ 0.18010133  0.21705941]
+ [ 0.19204738  0.2196252 ]
+ [ 0.18823389  0.23088988]]
+    \end{Verbatim}
+
+    \subsection{Question 3}\label{question-3}
+
+    First I need to get the mean value of all genes:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}11}]:} \PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data\PYZus{}mean} \PY{o}{=} \PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data}\PY{o}{.}\PY{n}{apply}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{,} \PY{n}{axis} \PY{o}{=} \PY{l+m+mi}{0}\PY{p}{)}
+\end{Verbatim}
+
+    Use the lasso method to predict the growth rate for the mean gene:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}12}]:} \PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data\PYZus{}mean\PYZus{}predict\PYZus{}value} \PY{o}{=} \PY{n}{lasso\PYZus{}fit}\PY{o}{.}\PY{n}{predict}\PY{p}{(}\PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data\PYZus{}mean}\PY{o}{.}\PY{n}{reshape}\PY{p}{(}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+m+mi}{95}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}13}]:} \PY{n+nb}{print}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{The predicted growth rate for a bacterium whose genes are expressed exactly at the mean expression value is:}\PY{l+s}{\PYZsq{}}\PY{p}{)} 
+         \PY{n+nb}{print}\PY{p}{(}\PY{n}{gene\PYZus{}features\PYZus{}lasso\PYZus{}data\PYZus{}mean\PYZus{}predict\PYZus{}value}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The predicted growth rate for a bacterium whose genes are expressed exactly at the mean expression value is:
+[ 0.38668247]
+    \end{Verbatim}
+
+    \subsection{Question 4}\label{question-4}
+
+    First I need to talk about what I am doing afterwards, since all
+question 4 to question 6 are all using the same functions to accomplish
+the task.
+
+The first step is to import the libraries related to this part. It
+includes SVM, AUC, AUPRC, Cross-Validation and so on.
+
+The second step is to define several functions which will be used
+afterwards. They are:
+
+\texttt{feature\_selection}: It will select the feature. Unlike the
+linear lasso method used in question 1, now I use a lasso method based
+on SVM of linear kernel. Since they are all L1 norm, they all have the
+ability of feature selection.
+
+\texttt{svm\_cv\_score}: This function can calculate the svm score,
+which will be rendered to calculate the AUC and AUPRC. It accepts the
+data (X), target (y), and the train-test split index, and give a result
+of svm score.
+
+\texttt{to\_binary}: This function translates y to binary values. For
+example, if y has 6 classes, then translated binary y will be a 6
+dimension vector, such as (0, 0, 1, 0, 0, 0).
+
+\texttt{compute\_roc}: This function calculates the FPR (False Positive
+Rate), TPR (True Positive Rate) and ROC Curve values. It accepts the y
+value and y score of SVM classification, then calculate the results.
+\emph{Note here to generate a overall performance for all the
+classifiers, I create a micro-average curve, and plot it individually.}
+
+\texttt{compute\_pr}: This function follows the same logic as function
+\texttt{compute\_roc}, but is calculating Recall, Precision and AUPRC
+Curve values.
+
+The third step is to combine them together and plot the ROC and AUPRC
+curve, and this is what the function \texttt{svm\_cv\_roc} is doing. It
+accepts data (X) and target (y) as input, first it will select the
+feature based on L1 norm, and make the y value to binaries. Then
+generate the 10-fold cross-validation train-validation split, and
+initialize the y score matrix. After that, the y score is calculated,
+and use it to calculate AUC and AUPRC. Then plot them.
+
+The fourth step is to see the plots. In the plots, I have list all the
+classification curves with respect to different classes and a
+micro-average curve for an overall performace evaluation. I also give
+the area value under each curve to facilitate comparison.
+
+There are also some comments below. So if you still have some question,
+please see these comments.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}14}]:} \PY{c}{\PYZsh{} import svm library and other required functions}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{svm} \PY{k}{import} \PY{n}{LinearSVC}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{feature\PYZus{}selection} \PY{k}{import} \PY{n}{SelectFromModel}
+         \PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn} \PY{k}{import} \PY{n}{svm}\PY{p}{,} \PY{n}{datasets}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{metrics} \PY{k}{import} \PY{n}{roc\PYZus{}curve}\PY{p}{,} \PY{n}{auc}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{metrics} \PY{k}{import} \PY{n}{precision\PYZus{}recall\PYZus{}curve}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{metrics} \PY{k}{import} \PY{n}{average\PYZus{}precision\PYZus{}score}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{cross\PYZus{}validation} \PY{k}{import} \PY{n}{train\PYZus{}test\PYZus{}split}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{preprocessing} \PY{k}{import} \PY{n}{label\PYZus{}binarize}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{multiclass} \PY{k}{import} \PY{n}{OneVsRestClassifier}
+         \PY{k+kn}{from} \PY{n+nn}{scipy} \PY{k}{import} \PY{n}{interp}
+         \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{svm} \PY{k}{import} \PY{n}{SVC}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}15}]:} \PY{k}{def} \PY{n+nf}{feature\PYZus{}selection}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{y}\PY{p}{)}\PY{p}{:}
+             \PY{c}{\PYZsh{} This function is the feature selection using the method of L1, which is equivalent to lasso,}
+             \PY{c}{\PYZsh{} but is done inside LinearSVC.}
+         
+             \PY{c}{\PYZsh{} set L1 penalty and select}
+             \PY{n}{lsvc} \PY{o}{=} \PY{n}{LinearSVC}\PY{p}{(}\PY{n}{C}\PY{o}{=}\PY{l+m+mf}{0.01}\PY{p}{,} \PY{n}{penalty}\PY{o}{=}\PY{l+s}{\PYZdq{}}\PY{l+s}{l1}\PY{l+s}{\PYZdq{}}\PY{p}{,} \PY{n}{dual}\PY{o}{=}\PY{k}{False}\PY{p}{)}\PY{o}{.}\PY{n}{fit}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{y}\PY{p}{)}
+             \PY{n}{model} \PY{o}{=} \PY{n}{SelectFromModel}\PY{p}{(}\PY{n}{lsvc}\PY{p}{,} \PY{n}{prefit}\PY{o}{=}\PY{k}{True}\PY{p}{)}
+             \PY{c}{\PYZsh{} get reduced X}
+             \PY{n}{X\PYZus{}new} \PY{o}{=} \PY{n}{model}\PY{o}{.}\PY{n}{transform}\PY{p}{(}\PY{n}{X}\PY{p}{)}
+             \PY{c}{\PYZsh{} get the number of feature selected}
+             \PY{n}{n\PYZus{}feature} \PY{o}{=} \PY{n}{X\PYZus{}new}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}
+         
+             \PY{k}{return} \PY{n}{X\PYZus{}new}\PY{p}{,} \PY{n}{n\PYZus{}feature}
+         
+         
+         \PY{k}{def} \PY{n+nf}{svm\PYZus{}cv\PYZus{}score}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{svc}\PY{p}{,} \PY{n}{train}\PY{p}{,} \PY{n}{test}\PY{p}{)}\PY{p}{:}
+             \PY{c}{\PYZsh{} This function does the cross validation for each train and test combination in svm}
+         
+             \PY{c}{\PYZsh{} get the train and test data based on the index}
+             \PY{n}{X\PYZus{}train}\PY{p}{,} \PY{n}{X\PYZus{}test} \PY{o}{=} \PY{n}{X}\PY{p}{[}\PY{n}{train}\PY{p}{,} \PY{p}{:}\PY{p}{]}\PY{p}{,} \PY{n}{X}\PY{p}{[}\PY{n}{test}\PY{p}{,} \PY{p}{:}\PY{p}{]}
+             \PY{n}{y\PYZus{}train}\PY{p}{,} \PY{n}{y\PYZus{}test} \PY{o}{=} \PY{n}{y}\PY{p}{[}\PY{n}{train}\PY{p}{]}\PY{p}{,} \PY{n}{y}\PY{p}{[}\PY{n}{test}\PY{p}{]}
+             \PY{c}{\PYZsh{} fit the data, get svm score to plot roc}
+             \PY{n}{y\PYZus{}score} \PY{o}{=} \PY{n}{svc}\PY{o}{.}\PY{n}{fit}\PY{p}{(}\PY{n}{X\PYZus{}train}\PY{p}{,} \PY{n}{y\PYZus{}train}\PY{p}{)}\PY{o}{.}\PY{n}{decision\PYZus{}function}\PY{p}{(}\PY{n}{X\PYZus{}test}\PY{p}{)}
+         
+             \PY{k}{return} \PY{n}{y\PYZus{}score}
+         
+         
+         \PY{k}{def} \PY{n+nf}{to\PYZus{}binary}\PY{p}{(}\PY{n}{y}\PY{p}{)}\PY{p}{:}
+             \PY{c}{\PYZsh{} This function converts a categorical vector into a binary format}
+         
+             \PY{n}{n\PYZus{}classes} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{n}{y}\PY{p}{)}
+             \PY{n}{y} \PY{o}{=} \PY{n}{label\PYZus{}binarize}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{classes}\PY{o}{=}\PY{n+nb}{range}\PY{p}{(}\PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{)}
+         
+             \PY{k}{return} \PY{n}{y}
+         
+         
+         \PY{k}{def} \PY{n+nf}{compute\PYZus{}roc}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{,} \PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{:}
+             \PY{c}{\PYZsh{} This function accepts y value and the corresponding lasso score, then calculate the}
+             \PY{c}{\PYZsh{} fpr, tpr, AUC.}
+         
+             \PY{n}{fpr} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{p}{)}
+             \PY{n}{tpr} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{p}{)}
+             \PY{n}{roc\PYZus{}auc} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{p}{)}
+             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{:}
+                 \PY{n}{fpr}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{tpr}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{roc\PYZus{}curve}\PY{p}{(}\PY{n}{y}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}\PY{p}{)}
+                 \PY{n}{roc\PYZus{}auc}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{auc}\PY{p}{(}\PY{n}{fpr}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{tpr}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{)}
+             
+             \PY{c}{\PYZsh{} Compute micro\PYZhy{}average ROC curve and ROC area}
+             \PY{n}{fpr}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{tpr}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{roc\PYZus{}curve}\PY{p}{(}\PY{n}{y}\PY{o}{.}\PY{n}{ravel}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{o}{.}\PY{n}{ravel}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+             \PY{n}{roc\PYZus{}auc}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]} \PY{o}{=} \PY{n}{auc}\PY{p}{(}\PY{n}{fpr}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{tpr}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{)}
+         
+             \PY{k}{return} \PY{n}{fpr}\PY{p}{,} \PY{n}{tpr}\PY{p}{,} \PY{n}{roc\PYZus{}auc}
+         
+         
+         \PY{k}{def} \PY{n+nf}{compute\PYZus{}pr}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{,} \PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{:}
+             \PY{c}{\PYZsh{} This function accepts y value and the corresponding lasso score, then calculate the }
+             \PY{c}{\PYZsh{} precision, recall, AUPRC}
+             
+             \PY{n}{precision} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{p}{)}
+             \PY{n}{recall} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{p}{)}
+             \PY{n}{average\PYZus{}precision} \PY{o}{=} \PY{n+nb}{dict}\PY{p}{(}\PY{p}{)}
+             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{:}
+                 \PY{n}{precision}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{recall}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{precision\PYZus{}recall\PYZus{}curve}\PY{p}{(}\PY{n}{y}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}\PY{p}{)}
+                 \PY{n}{average\PYZus{}precision}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{average\PYZus{}precision\PYZus{}score}\PY{p}{(}\PY{n}{y}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}\PY{p}{)}
+                 
+             \PY{c}{\PYZsh{} Compute micro\PYZhy{}average PR cirve and AUPRC area}
+             \PY{n}{precision}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{recall}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{\PYZus{}} \PY{o}{=} \PY{n}{precision\PYZus{}recall\PYZus{}curve}\PY{p}{(}\PY{n}{y}\PY{o}{.}\PY{n}{ravel}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{o}{.}\PY{n}{ravel}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+             \PY{n}{average\PYZus{}precision}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]} \PY{o}{=} \PY{n}{average\PYZus{}precision\PYZus{}score}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{,} \PY{n}{average}\PY{o}{=}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{)}
+             
+             \PY{k}{return} \PY{n}{precision}\PY{p}{,} \PY{n}{recall}\PY{p}{,} \PY{n}{average\PYZus{}precision}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}16}]:} \PY{k}{def} \PY{n+nf}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{y}\PY{p}{)}\PY{p}{:}
+             \PY{c}{\PYZsh{} This function is the main function that connects different jobs of doing svm cross validation.}
+         
+             \PY{c}{\PYZsh{} Preparation}
+             \PY{n}{n\PYZus{}sample} \PY{o}{=} \PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}
+             \PY{n}{n\PYZus{}classes} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{max}\PY{p}{(}\PY{n}{y}\PY{p}{)}
+         
+             \PY{c}{\PYZsh{} Select which feature should be included in the model}
+             \PY{n}{X}\PY{p}{,} \PY{n}{n\PYZus{}feature} \PY{o}{=} \PY{n}{feature\PYZus{}selection}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{y}\PY{p}{)}
+             
+             \PY{n+nb}{print}\PY{p}{(}\PY{l+s}{\PYZdq{}}\PY{l+s}{The number of features selected for this variable is }\PY{l+s}{\PYZdq{}}\PY{p}{,} \PY{n}{n\PYZus{}feature}\PY{p}{,} \PY{l+s}{\PYZsq{}}\PY{l+s+se}{\PYZbs{}n}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+         
+             \PY{c}{\PYZsh{} Make the output Binary}
+             \PY{n}{y} \PY{o}{=} \PY{n}{to\PYZus{}binary}\PY{p}{(}\PY{n}{y}\PY{p}{)}
+         
+             \PY{c}{\PYZsh{} split the data into cross\PYZhy{}validation sets}
+             \PY{n}{kf} \PY{o}{=} \PY{n}{KFold}\PY{p}{(}\PY{n}{X}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{n\PYZus{}folds}\PY{o}{=}\PY{l+m+mi}{10}\PY{p}{,} \PY{n}{shuffle}\PY{o}{=}\PY{k}{True}\PY{p}{)}
+             \PY{n}{svc} \PY{o}{=} \PY{n}{OneVsRestClassifier}\PY{p}{(}\PY{n}{SVC}\PY{p}{(}\PY{n}{kernel}\PY{o}{=}\PY{l+s}{\PYZsq{}}\PY{l+s}{linear}\PY{l+s}{\PYZsq{}}\PY{p}{,} \PY{n}{probability}\PY{o}{=}\PY{k}{True}\PY{p}{)}\PY{p}{)}
+             \PY{n}{y\PYZus{}score} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{empty}\PY{p}{(}\PY{p}{(}\PY{n}{n\PYZus{}sample}\PY{p}{,} \PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{)}
+             
+             \PY{c}{\PYZsh{} Do cross\PYZhy{}validation}
+             \PY{k}{for} \PY{n}{\PYZus{}}\PY{p}{,} \PY{p}{(}\PY{n}{train}\PY{p}{,} \PY{n}{test}\PY{p}{)} \PY{o+ow}{in} \PY{n+nb}{enumerate}\PY{p}{(}\PY{n}{kf}\PY{p}{)}\PY{p}{:}
+                 \PY{n}{y\PYZus{}score\PYZus{}temp} \PY{o}{=} \PY{n}{svm\PYZus{}cv\PYZus{}score}\PY{p}{(}\PY{n}{X}\PY{p}{,} \PY{n}{y}\PY{p}{,} \PY{n}{svc}\PY{p}{,} \PY{n}{train}\PY{p}{,} \PY{n}{test}\PY{p}{)}
+                 \PY{n}{y\PYZus{}score}\PY{p}{[}\PY{n}{test}\PY{p}{]} \PY{o}{=} \PY{n}{y\PYZus{}score\PYZus{}temp}
+         
+             \PY{c}{\PYZsh{} Compute ROC curve and ROC area for each class}
+             \PY{n}{fpr}\PY{p}{,} \PY{n}{tpr}\PY{p}{,} \PY{n}{roc\PYZus{}auc} \PY{o}{=} \PY{n}{compute\PYZus{}roc}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{,} \PY{n}{n\PYZus{}classes}\PY{p}{)}
+             
+             \PY{c}{\PYZsh{} Compute Precision\PYZhy{}Recall and plot curve}
+             \PY{n}{precision}\PY{p}{,} \PY{n}{recall}\PY{p}{,} \PY{n}{average\PYZus{}precision} \PY{o}{=} \PY{n}{compute\PYZus{}pr}\PY{p}{(}\PY{n}{y}\PY{p}{,} \PY{n}{y\PYZus{}score}\PY{p}{,} \PY{n}{n\PYZus{}classes}\PY{p}{)}
+             
+             \PY{c}{\PYZsh{} Next part are all plot functions}
+         
+             \PY{c}{\PYZsh{} Plot micro ROC curve}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{fpr}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{tpr}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s}{\PYZsq{}}\PY{l+s}{micro\PYZhy{}average ROC curve (area = \PYZob{}0:0.2f\PYZcb{})}\PY{l+s}{\PYZsq{}}
+                                                        \PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{roc\PYZus{}auc}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{)}\PY{p}{,} \PY{n}{linewidth}\PY{o}{=}\PY{l+m+mi}{2}\PY{p}{)}
+         
+             \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{l+s}{\PYZsq{}}\PY{l+s}{k\PYZhy{}\PYZhy{}}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.05}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{False Positive Rate}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{True Positive Rate}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{The overall ROC curve Performance}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{loc}\PY{o}{=}\PY{l+s}{\PYZdq{}}\PY{l+s}{lower right}\PY{l+s}{\PYZdq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+         
+             \PY{c}{\PYZsh{} Plot FPR\PYZhy{}TPR curve for each class}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{figure}\PY{p}{(}\PY{p}{)}
+             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{:}
+                 \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{fpr}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{tpr}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s}{\PYZsq{}}\PY{l+s}{ROC curve of class \PYZob{}0\PYZcb{} (area = \PYZob{}1:0.2f\PYZcb{})}\PY{l+s}{\PYZsq{}}
+                                                \PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n}{roc\PYZus{}auc}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+         
+             \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{l+s}{\PYZsq{}}\PY{l+s}{k\PYZhy{}\PYZhy{}}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.05}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{False Positive Rate}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{True Positive Rate}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{The ROC curve for each class}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{loc}\PY{o}{=}\PY{l+s}{\PYZdq{}}\PY{l+s}{lower right}\PY{l+s}{\PYZdq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+         
+             \PY{c}{\PYZsh{} Plot micro PR curve}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{clf}\PY{p}{(}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{recall}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{precision}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{,}
+                      \PY{n}{label}\PY{o}{=}\PY{l+s}{\PYZsq{}}\PY{l+s}{micro\PYZhy{}average Precision\PYZhy{}recall curve (area = \PYZob{}0:0.2f\PYZcb{})}\PY{l+s}{\PYZsq{}}
+                            \PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{average\PYZus{}precision}\PY{p}{[}\PY{l+s}{\PYZdq{}}\PY{l+s}{micro}\PY{l+s}{\PYZdq{}}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+             
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.05}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{Recall}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{Precision}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{Extension of Precision\PYZhy{}Recall curve to multi\PYZhy{}class}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{loc}\PY{o}{=}\PY{l+s}{\PYZdq{}}\PY{l+s}{lower right}\PY{l+s}{\PYZdq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+             
+             \PY{c}{\PYZsh{} Plot Precision\PYZhy{}Recall curve for each class}
+             \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{n\PYZus{}classes}\PY{p}{)}\PY{p}{:}
+                 \PY{n}{plt}\PY{o}{.}\PY{n}{plot}\PY{p}{(}\PY{n}{recall}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,} \PY{n}{precision}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{,}
+                          \PY{n}{label}\PY{o}{=}\PY{l+s}{\PYZsq{}}\PY{l+s}{Precision\PYZhy{}recall curve of class \PYZob{}0\PYZcb{} (area = \PYZob{}1:0.2f\PYZcb{})}\PY{l+s}{\PYZsq{}}
+                                \PY{l+s}{\PYZsq{}}\PY{l+s}{\PYZsq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n}{average\PYZus{}precision}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{p}{)}\PY{p}{)}
+                 
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylim}\PY{p}{(}\PY{p}{[}\PY{l+m+mf}{0.0}\PY{p}{,} \PY{l+m+mf}{1.05}\PY{p}{]}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{xlabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{Recall}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{ylabel}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{Precision}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{title}\PY{p}{(}\PY{l+s}{\PYZsq{}}\PY{l+s}{Extension of Precision\PYZhy{}Recall curve to multi\PYZhy{}class}\PY{l+s}{\PYZsq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{n}{loc}\PY{o}{=}\PY{l+s}{\PYZdq{}}\PY{l+s}{lower right}\PY{l+s}{\PYZdq{}}\PY{p}{)}
+             \PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+         
+             
+             \PY{k}{return}
+\end{Verbatim}
+
+    Let's see each classifier related to each variable one by one.
+
+    \textbf{Strain}:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}17}]:} \PY{n}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{Strain}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The number of features selected for this variable is  18
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_36_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_36_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_36_3.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_36_4.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \textbf{Medium}:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}18}]:} \PY{n}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{Medium}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The number of features selected for this variable is  29
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_38_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_38_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_38_3.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_38_4.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \textbf{Environmental}:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}19}]:} \PY{n}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{Stress}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The number of features selected for this variable is  25
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_40_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_40_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_40_3.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_40_4.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \textbf{Gene Perturbation}:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}20}]:} \PY{n}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{GenePerturbed}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The number of features selected for this variable is  10
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_42_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_42_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_42_3.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_42_4.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \subsection{Question 5}\label{question-5}
+
+    Since I have already done the combination of two variables of Medium and
+Stress in my R script, Now I can do the svm classification:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}21}]:} \PY{n}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{Medium\PYZus{}Stress}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The number of features selected for this variable is  25
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_45_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_45_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_45_3.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_45_4.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    The AUC are 0.84 and 0.87 individually, while the combination is 0.79.
+The AUPRC are 0.32 and 0.62 individually, while the combination is 0.20.
+These results indicate that this combination prediction is not as good
+as two individual predictors.
+
+The baseline prediction performance is 0.84 for AUC, and 0.32 for AUPRC.
+
+    \subsection{Question 6}\label{question-6}
+
+    I will first do PCA
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}22}]:} \PY{k+kn}{from} \PY{n+nn}{sklearn}\PY{n+nn}{.}\PY{n+nn}{decomposition} \PY{k}{import} \PY{n}{PCA}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}23}]:} \PY{c}{\PYZsh{} Normalize data first}
+         \PY{n}{gene}\PY{o}{.}\PY{n}{data\PYZus{}pca} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{zeros\PYZus{}like}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{p}{)}
+         \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data\PYZus{}pca}\PY{o}{.}\PY{n}{shape}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}\PY{p}{:}
+             \PY{n}{feature} \PY{o}{=} \PY{n}{gene}\PY{o}{.}\PY{n}{data}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]}
+             \PY{k}{if} \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}\PY{n}{feature}\PY{p}{)} \PY{o}{==} \PY{l+m+mi}{0}\PY{p}{:}
+                 \PY{n}{gene}\PY{o}{.}\PY{n}{data\PYZus{}pca}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{feature}
+             \PY{k}{else}\PY{p}{:}
+                 \PY{n}{gene}\PY{o}{.}\PY{n}{data\PYZus{}pca}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{p}{(}\PY{n}{feature} \PY{o}{\PYZhy{}} \PY{n}{np}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{feature}\PY{p}{)}\PY{p}{)} \PY{o}{/} \PY{n}{np}\PY{o}{.}\PY{n}{std}\PY{p}{(}\PY{n}{feature}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}24}]:} \PY{c}{\PYZsh{} Set PCA parameter, the number is 3}
+         \PY{n}{gene\PYZus{}pca} \PY{o}{=} \PY{n}{PCA}\PY{p}{(}\PY{n}{n\PYZus{}components} \PY{o}{=} \PY{l+m+mi}{3}\PY{p}{)}
+         \PY{n}{gene\PYZus{}pca\PYZus{}fit} \PY{o}{=} \PY{n}{gene\PYZus{}pca}\PY{o}{.}\PY{n}{fit\PYZus{}transform}\PY{p}{(}\PY{n}{gene}\PY{o}{.}\PY{n}{data\PYZus{}pca}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}25}]:} \PY{n}{svm\PYZus{}cv\PYZus{}roc}\PY{p}{(}\PY{n}{gene\PYZus{}pca\PYZus{}fit}\PY{p}{,} \PY{n}{gene}\PY{o}{.}\PY{n}{Medium\PYZus{}Stress}\PY{p}{)}
+\end{Verbatim}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+The number of features selected for this variable is  3
+    \end{Verbatim}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_52_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_52_2.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_52_3.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{gene_files/gene_52_4.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    Compared with the results in Question 5, the AUC has been reduced from
+0.79 to 0.63, and AUPRC decreases from 0.20 to 0.15, which means PCA
+preserves about 75\% to 80\% of the original information.
+
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+    \end{document}
