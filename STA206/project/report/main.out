@@ -1,0 +1,12 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Methods and Results}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Data Exploration}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Model Selection}{section.2}% 4
+\BOOKMARK [3][-]{subsubsection.2.2.1}{First Order Model}{subsection.2.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Second Order Model}{subsection.2.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Model Summary}{subsection.2.2}% 7
+\BOOKMARK [2][-]{subsection.2.3}{Model Diagnostic and Validation}{section.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Model Diagnostic}{subsection.2.3}% 9
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Model Validation}{subsection.2.3}% 10
+\BOOKMARK [2][-]{subsection.2.4}{Final Model Analysis}{section.2}% 11
+\BOOKMARK [1][-]{section.3}{Conclusions and Discussion}{}% 12

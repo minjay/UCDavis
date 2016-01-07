@@ -1,0 +1,151 @@
+# ===================== 1. Data Exploration =====================
+prostate <- read.table('~/Desktop/prostate.txt')
+
+prostate <- prostate[, -1]
+names(prostate) <- c('PSA', 'cancer_volume', 'weight', 'age',
+                     'benign_prostatic_hyperplasia', 'seminal_vesicle_invasion',
+                     'capsular_penetration', 'gleason_score')
+
+#Use pairwise scatter plot to distinguish quantitative variables and qualitative variables
+pairs(prostate)
+quantitative_vars <- c('PSA', 'cancer_volume', 'weight', 'age',
+                       'benign_prostatic_hyperplasia', 'capsular_penetration')
+qualitative_vars <- c('seminal_vesicle_invasion', 'gleason_score')
+prostate$seminal_vesicle_invasion <- as.factor(prostate$seminal_vesicle_invasion)
+prostate$gleason_score <- as.factor(prostate$gleason_score)
+
+#Draw the correlation matrix for the quantitatives
+cor(prostate[quantitative_vars])
+
+#Plot histograms for each quantitative variables
+par(mfrow = c(2, 3))
+invisible(Map(function(x,y) hist(x, main = y), prostate[quantitative_vars], quantitative_vars))
+
+#Use Box-Cox procedure to find the best transformation of the response variable
+fit1 <- lm(PSA ~ ., data = prostate[quantitative_vars])
+library(MASS)
+par(mfrow = c(1, 1))
+boxcox(fit1)
+
+#Do a log transformation on the response variable
+prostate$log_PSA <- log(prostate$PSA)
+prostate <- prostate[c('log_PSA', 'cancer_volume', 'weight', 'age',
+                       'benign_prostatic_hyperplasia', 'seminal_vesicle_invasion',
+                       'capsular_penetration', 'gleason_score')]
+quantitative_vars <- c('log_PSA', 'cancer_volume', 'weight', 'age',
+                       'benign_prostatic_hyperplasia', 'capsular_penetration')
+
+
+#Plot a new pairwise scatter plot and histograms to see whether transformations are needed for predictors
+pairs(prostate[!(names(prostate) %in% qualitative_vars)])
+par(mfrow = c(2,3))
+invisible(Map(function(x,y) hist(log(x), main = y),
+              prostate[quantitative_vars[2:6]], quantitative_vars[2:6]))
+
+
+#From the scatter plot, it seems that the predictor cancer volume needs a log transformation
+prostate$log_cancer_volume <- log(prostate$cancer_volume)
+prostate <- prostate[c('log_PSA', 'log_cancer_volume', 'weight', 'age',
+                       'benign_prostatic_hyperplasia', 'seminal_vesicle_invasion',
+                       'capsular_penetration', 'gleason_score')]
+quantitative_vars <- c('log_PSA', 'log_cancer_volume', 'weight', 'age',
+                       'benign_prostatic_hyperplasia', 'capsular_penetration')
+
+# Check multicollinearity
+solve(cor(prostate[c('log_cancer_volume', 'weight', 'age', 'benign_prostatic_hyperplasia', 'capsular_penetration')]))
+
+#Draw side-by-side boxplot to see whether the qualitative variables have effects on the response  variable
+par(mfrow = c(1 ,2))
+invisible(Map(function(x,y,z) boxplot(y~x, main = z), prostate[qualitative_vars], data.frame(prostate$log_PSA, prostate$log_PSA), qualitative_vars))
+par(mfrow = c(1,1))
+boxplot(prostate$log_PSA ~ prostate$seminal_vesicle_invasion : prostate$gleason_score, main = "log_PSA with seminal_vesicle_invasion and gleason_score")
+
+# ================== 2. Model Selection ====================
+
+# cross-validation split
+set.seed(1)
+train <- sample(nrow(prostate), 70)
+test <- setdiff(1:nrow(prostate), train)
+
+
+
+
+# 2.1 First Order Model
+
+fit2 <- lm(log_PSA ~ ., data = prostate, subset = train)
+summary(fit2)
+
+#Use forward stepwise and backward stepwise to find the best first-order model under AIC
+model1aicf <- stepAIC(lm(log_PSA ~ 1, data = prostate, subset = train),
+                      scope = list(lower = lm(log_PSA ~ 1, data = prostate, subset = train),
+                                   upper = lm(log_PSA ~ ., data = prostate, subset = train)),
+                      direction = 'both')
+
+model1aicb <- stepAIC(lm(log_PSA ~ ., data = prostate, subset = train),
+                      scope = list(lower = lm(log_PSA ~ 1, data = prostate, subset = train),
+                                   upper = lm(log_PSA ~ ., data = prostate, subset = train)),
+                      direction = 'both')
+
+#Use forward stepwise and backward stepwise to find the best first-order model under BIC
+model1bicf <- stepAIC(lm(log_PSA ~ 1, data = prostate, subset = train),
+                      scope = list(lower = lm(log_PSA ~ 1, data = prostate, subset = train),
+                                   upper = lm(log_PSA ~ ., data = prostate, subset = train)),
+                      direction = 'both', k = log(length(train)))
+
+model1bicb <- stepAIC(lm(log_PSA ~ ., data = prostate, subset = train),
+                      scope = list(lower = lm(log_PSA ~ 1, data = prostate, subset = train),
+                                   upper = lm(log_PSA ~ ., data = prostate, subset = train)),
+                      direction = 'both', k = log(length(train)))
+
+# 2.2 second order model
+
+#Fit the second-order model
+fit3 <- lm(log_PSA ~ .^2 + I (age ^ 2) + I(log_cancer_volume ^ 2) + I(weight^2) + I(benign_prostatic_hyperplasia^2) + I (capsular_penetration^2), data = prostate, subset = train)
+
+#Use stepwise to find the best second-order model based on model1aic under AIC
+model2aicaic <- stepAIC(model1aicb,
+                        scope = list(lower = lm(log_PSA ~ 1, data = prostate, subset = train),
+                                     upper = fit3),
+                        direction = 'both')
+
+#Use stepwise to find the best second-order model based on model1bic under BIC
+model2bicbic <- stepAIC(model1bicb,
+                        scope = list(lower = lm(log_PSA ~ 1, data = prostate, subset = train),
+                                     upper = fit3),
+                        direction = 'both', k = log(length(train)))
+
+
+
+# =================== 3. Model Diagnostic and Validation ==========================
+
+
+# 3.1 model diagnostic
+par(mfrow = c(3, 2))
+plot(model1aicb, which = c(1,2))
+plot(model1bicb, which = c(1,2))
+plot(model2aicaic, which = c(1,2))
+
+# 3.2 Model validation
+model1aicb_mspe <- sum((prostate$log_PSA[test] - predict(model1aicb, prostate[test,]))^2)/length(test)
+model1bicb_mspe <- sum((prostate$log_PSA[test] - predict(model1bicb, prostate[test,]))^2)/length(test)
+model2aicaic_mspe <- sum((prostate$log_PSA[test] - predict(model2aicaic, prostate[test,]))^2)/length(test)
+
+
+# ================ 4. Final Model Analysis =========================
+model_final <- lm(formula = log_PSA ~ log_cancer_volume + weight + age + benign_prostatic_hyperplasia +
+                    seminal_vesicle_invasion + gleason_score, data = prostate)
+
+summary(model_final)
+anova(model_final)
+par(mfrow = c(3,2))
+plot(model_final, which = 1:6)
+
+model_final_del <- lm(formula = log_PSA ~ log_cancer_volume + weight + age + benign_prostatic_hyperplasia +
+                        seminal_vesicle_invasion + gleason_score, data = prostate[-32, ])
+summary(model_final_del)
+anova(model_final_del)
+par(mfrow = c(3,2))
+plot(model_final_del, which = 1:6)
+
+
+
