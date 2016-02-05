@@ -1,0 +1,32 @@
+---
+title: "STA135 hw4"
+author: "Zhen Zhang"
+date: "January 24, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 4.24
+
+## (a)
+
+```{r}
+sales <- c(108.28, 152.36, 95.04, 65.45, 62.97, 263.99, 265.19, 285.06, 92.01, 165.68)
+profits <- c(17.05, 16.59, 10.91, 14.14, 9.52, 25.33, 18.54, 15.73, 8.10, 11.13)
+qqnorm_sales <- qqnorm(sales, main = 'qqplot for sales')
+qqnorm_profits <- qqnorm(profits, main = 'qqplot for profits')
+```
+
+Since the points are not straight, and the sample size is small, we cannot conclude data to be normal distributed.
+
+## (b)
+
+```{r}
+cor(qqnorm_sales$x, qqnorm_sales$y)
+cor(qqnorm_profits$x, qqnorm_profits$y)
+```
+
+The critical point for $n = 10$ at significance level 0.1 is 0.9351, and the correlation is $r_{sales} = 0.9402$, $r_{profits} = 0.9684$, they are larger than the threshold, so we cannot reject the assumption of normal distribution, in either case.

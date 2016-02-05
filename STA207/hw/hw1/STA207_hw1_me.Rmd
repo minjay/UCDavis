@@ -1,0 +1,217 @@
+---
+title: "STA207 Homework 1"
+author: "Juanjuan Hu, Zhen Zhang"
+date: "January 11, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(xlsx)
+kidney <- xlsx::read.xlsx2("kidney.xlsx", 1)
+```
+
+# 19.18
+## (a)
+
+```{r}
+transform_function <- function(x) {
+  log10(x + 1)
+}
+kidney$Days <- transform_function(as.numeric(as.character(kidney$Days)))
+
+mean_kidney <- with(kidney, tapply(Days, list(Duration = Duration, Weight = Weight), mean))
+kidney$residual <- kidney$Days - rep(as.vector(t(mean_kidney)), each = 10)
+kidney$residual
+```
+
+## (b)
+
+```{r}
+stripchart(split(kidney$residual, with(kidney, list(Duration = Duration, Weight = Weight))), 
+           method = "stack",  pch = 19)
+abline(h = seq(2, 6) - 0.1)
+```
+
+we can know that this ANOVA model has equal variance since the departure is almost average.
+
+## (c)
+ 
+```{r} 
+qqp = qqnorm(kidney$residual)
+qqline(kidney$residual)
+cor(qqp$x, qqp$y)
+```
+
+The relationship coefficient is 0.985.
+
+Not reasonable, it skewed to the left.
+
+# 19.19
+
+## (a)
+
+```{r}
+with(kidney, interaction.plot(Duration, Weight, Days))
+with(kidney, interaction.plot(Weight, Duration, Days))
+```
+
+Factor Duation, Weight effect all exist.
+
+## (b)
+
+```{r}
+aov.out = aov(Days ~ Duration * Weight, data = kidney)
+summary(aov.out)
+```
+
+Factor Weight account for the most variability, since it has the most SSE.
+
+## (c)
+
+$H_0$: All $(\alpha\beta_{ij})$ equal zero.
+
+$H_a$: Not all $(\alpha\beta_{ij})$ equal zero.
+
+Test statistic: $F^* = MSAB/MSE = \frac{0.0599}{0.1013} = 0.5913$
+
+Decision Rule: $F(0.95; 2, 54)$ = `qf(0.95, 2, 54)` = 3.1682. So reject $H_0$ if $F^* > F(0.95; 2, 54)$.
+
+Conclusion: Since $0.5913 < 3.1682$, we cannot reject $H_0$. P-value is 0.5567.
+
+## (d)
+
+For $\alpha_i$:
+
+$H_0$: All $(\alpha_{i})$ equal zero.
+
+$H_a$: Not all $(\alpha_{i})$ equal zero.
+
+Test statistic: $F^* = MSA/MSE = \frac{0.4413}{0.1013} = 4.3564$
+
+Decision Rule: $F(0.95; 1, 54)$ = `qf(0.95, 1, 54)` = 4.0195. So reject $H_0$ if $F^* > F(0.95; 1, 54)$.
+
+Conclusion: Since $4.3564 > 4.0195$, we reject $H_0$. P-value is 0.0416.
+
+For $\beta_j$:
+
+$H_0$: All $(\beta_{j})$ equal zero.
+
+$H_a$: Not all $(\beta_{j})$ equal zero.
+
+Test statistic: $F^* = MSB/MSE = \frac{1.6005}{0.1013} = 15.807$
+
+Decision Rule: $F(0.95; 2, 54)$ = `qf(0.95, 2, 54)` = 3.1682. So reject $H_0$ if $F^* > F(0.95; 2, 54)$.
+
+Conclusion: Since $15.807 > 3.1682$, we reject $H_0$. P-value is 0.0000.
+
+## (e)
+
+The kimball inequlity bound:
+
+$\alpha = 1 - (1 - 0.05) * (1 - 0.05) * (1 - 0.05)$ = 0.143
+
+## (f)
+
+Yes, it confirm the result I get in part (a).
+
+# 19.34
+
+## (a)
+
+$\hat{\mu_{22}} = 0.58096$, $s(\hat{\mu_{22}}) = \sqrt{\frac{MSE}{n}} = 0.10065$, $t(0.975; 54) = 2.0049$.
+
+So the 95% interval is $(0.58096 \pm 2.0049 * 0.10065)$ = $(0.37917, 0.78275)$
+
+## (b)
+
+$\hat{D} = 0.86639 - 0.39823 = 0.46816$, $s(\hat{D}) = \sqrt{\frac{2MSE}{n}} = 0.14234$, $t(0.975; 54) = 2.0049$.
+
+So the 95% interval is $(0.46816 \pm 2.0049 * 0.14234)$ = $(0.18278, 0.75354)$
+
+## (c)
+
+```{r}
+model.tables(aov.out, type = 'means', se = T)
+barplot(model.tables(aov.out, type = 'means', se = T)$tables$Duration)
+barplot(model.tables(aov.out, type = 'means', se = T)$tables$Weight)
+```
+
+$\bar{Y}^{'}_{1..} = 0.7867$, $\bar{Y}^{'}_{2..} = 0.6152$
+
+$\bar{Y}^{'}_{.1.} = 0.4209$, $\bar{Y}^{'}_{.2.} = 0.6955$, $\bar{Y}^{'}_{.3.} = 0.9865$,
+
+The factor main effects exist.
+
+## (d)
+
+Bonferroni: $B = t(1-\frac{0.05}{4}, 54) = t(0.9875, 54) = 2.306$
+
+Tukey: 
+
+for $\alpha_i$: $T = \frac{1}{\sqrt{2}}q(0.95; 2, 54) = 2.008$
+
+for $\beta_j$: $T = \frac{1}{\sqrt{2}}q(0.95; 3, 54) = 2.411$
+
+Scheffe:
+
+$S^2 = 3 * F(0.9; 3, 54) = 6.56436$, so $S = 2.5621$.
+
+So Bonferroni is best here.
+
+## (e)
+
+$\hat{D_1} = \bar{Y}^{'}_{1..} - \bar{Y^{'}_{2..}} = 0.1715$
+
+$\hat{D_2} = \bar{Y}^{'}_{.1.} - \bar{Y^{'}_{.2.}} = -0.2746$
+
+$\hat{D_3} = \bar{Y}^{'}_{.1.} - \bar{Y^{'}_{.3.}} = -0.5656$
+
+$\hat{D_4} = \bar{Y}^{'}_{.2.} - \bar{Y^{'}_{.3.}} = -0.291$
+
+$s(\hat{D_1}) = \sqrt{\frac{2MSE}{30}} = 0.0822$, $s(\hat{D_2}) = s(\hat{D_3}) = s(\hat{D_4}) = \sqrt{\frac{2MSE}{20}} = 0.1006$.
+
+$B = 2.306$
+
+Then the intervals are:
+
+$D_1$: $(0.1715 \pm 0.0822 * 2.306) = (0.01805, 0.36105)$
+
+$D_2$: $(-0.2746 \pm 0.1006 * 2.306) = (-0.5066, -0.0426)$
+
+$D_3$: $(-0.5656 \pm 0.1006 * 2.306) = (-0.7976, -0.3336)$
+
+$D_4$: $(-0.291 \pm 0.1006 * 2.306) = (-0.5230, -0.0590)$
+
+## (f)
+
+$\hat{D} = 0.3\mu_{.1} + 0.4\mu_{.2} + 0.3\mu_{.3} = 0.70041$, $s(\hat{D}) = \sqrt{\frac{MSE}{20} * (0.3^2 + 0.4^2 + 0.3^2)} = 0.04150$, $t(0.975, 54) = 2.0049$.
+
+So the interval should be $(0.70041 \pm 2.0049 * 0.04150)$ = $(0.61721, 0.78361)$.
+
+To convert them to the original unit, we get $(3.142, 5.076)$, which means less than 7.
+
+# 19.41
+
+We can define a function here:
+
+```{r}
+find_sample_size <- function(n) {
+  B = qt(0.9875, 5*(n - 1))
+  sigma = 0.32 * (1/n) ^ 0.5
+  return (B * sigma)
+}
+```
+
+Now run this function with some values:
+
+```{r}
+find_sample_size(15)
+find_sample_size(14)
+find_sample_size(13)
+```
+
+So we know $n = 14$ is the smallest sample size needed to maintain a precision of $\pm 0.20$.

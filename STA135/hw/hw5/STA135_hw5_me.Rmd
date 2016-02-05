@@ -1,0 +1,140 @@
+---
+title: "STA135 homework5"
+author: "Zhen Zhang"
+date: "January 31, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 4.25
+
+```{r}
+sales <- c(108.28, 152.36, 95.04, 65.45, 62.97, 263.99, 265.19, 285.06, 92.01, 165.68)
+profits <- c(17.05, 16.59, 10.91, 14.14, 9.52, 25.33, 18.54, 15.73, 8.10, 11.13)
+assets <- c(1484.10, 750.33, 766.42, 1110.46, 1031.29, 195.26, 193.83, 191.11, 1175.16, 211.15)
+top <- data.frame(sales, profits, assets)
+```
+
+The mean vector is:
+
+```{r}
+(top_mean <- apply(top, 2, mean))
+```
+
+The covariance matrix:
+
+```{r}
+top_d <- t(apply(top, 1, function(x) x-top_mean))
+(top_variance <- apply(top_d, 2, function(x) {
+  apply(top_d, 2, function(y) {
+    x%*%y/(length(top_d[,1])-1)
+  })
+}))
+```
+
+Now calculate the statistical distance, and order them:
+
+```{r}
+(top_unorder_distance <- apply(top, 1, function(x) {
+  t(x-top_mean)%*%solve(top_variance)%*%(x-top_mean)
+}))
+(top_order_variance <- sort(top_unorder_distance))
+```
+
+The chi-square quantile is:
+
+```{r}
+chisq_quantile <- sapply(10:1, function(x) qchisq((10-x+0.5)/10,3))
+```
+
+Plot:
+
+```{r}
+plot(chisq_quantile, top_order_variance)
+```
+
+## 4.26
+
+### (a)
+
+```{r}
+x1 <- c(1,2,3,3,4,5,6,8,9,11)
+x2 <- c(18.95, 19.00, 17.95, 15.54, 14.00, 12.95, 8.94, 7.49, 6.00, 3.99)
+cars <- data.frame(x1, x2)
+# the mean
+(cars_mean <- apply(cars, 2, mean))
+cars_d <- t(apply(cars, 1, function(x) x-cars_mean))
+# the variance
+(cars_variance <- apply(cars_d, 2, function(x) {
+  apply(cars_d, 2, function(y) {
+    x%*%y/(length(cars_d[,1])-1)
+  })
+}))
+# the statistical distance
+(cars_unorder_distance <- apply(cars, 1, function(x) {
+  t(x-cars_mean)%*%solve(cars_variance)%*%(x-cars_mean)
+}))
+```
+
+### (b)
+
+```{r}
+sum(cars_unorder_distance < qchisq(0.5, 2))
+```
+
+So there are 5 observations within the $50\%$ contour.
+
+### (c)
+
+```{r}
+chisq_quantile <- sapply(10:1, function(x) qchisq((10-x+0.5)/10, 2))
+plot(chisq_quantile, sort(cars_unorder_distance))
+```
+
+## 4.28
+
+```{r}
+pollution <- read.table("T1-5.dat")
+pollution_solar_radiation <- pollution[,2]
+pollution_solar_radiation_qqnorm <- qqnorm(pollution_solar_radiation)
+cor(pollution_solar_radiation_qqnorm$x, pollution_solar_radiation_qqnorm$y)
+```
+
+The correlation is 0.9693258. For n = 40, $\alpha = 0.05$, the coefficient should be 0.9726 (from table 4-2), so we would reject the hypothesis of normality at 5% level.
+
+## 4.29
+
+### (a)
+
+```{r}
+pollution_cut <- pollution[, 5:6]
+pollution_cut_mean <- apply(pollution_cut, 2, mean)
+pollution_cut_d <- t(apply(pollution_cut, 1, function(x) x-pollution_cut_mean))
+(pollution_cut_variance <- apply(pollution_cut_d, 2, function(x) {
+  apply(pollution_cut_d, 2, function(y) {
+    x%*%y/(length(pollution_cut_d[,1])-1)
+  })
+}))
+# the statistical distance
+(pollution_cut_unorder_distance <- apply(pollution_cut, 1, function(x) {
+  t(x-pollution_cut_mean)%*%solve(pollution_cut_variance)%*%(x-pollution_cut_mean)
+}))
+```
+
+### (b)
+
+```{r}
+sum(pollution_cut_unorder_distance < qchisq(0.5, 2))
+```
+
+The number of observations that fall within the 50% probability contour of bivariate normal distribution.
+
+### (c)
+
+```{r}
+chisq_quantile <- sapply(42:1, function(x) qchisq((42-x+0.5)/42, 2))
+plot(chisq_quantile, sort(pollution_cut_unorder_distance))
+```

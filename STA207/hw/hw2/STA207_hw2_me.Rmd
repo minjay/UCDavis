@@ -1,0 +1,418 @@
+---
+title: "STA207 Homework 2"
+author: "Juanjuan Hu, Zhen Zhang"
+date: "January 21, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy = TRUE)
+options(width = 60)
+library(gplots)
+library(ggplot2)
+```
+
+# 18.15
+
+## (a)
+
+```{r}
+helicopter <- read.table("CH18PR15.txt")
+names(helicopter) <- c("count", "shiftTime", "size")
+helicopter_mean <- with(helicopter, tapply(count, list(shiftTime = shiftTime, size = size), mean))
+```
+
+The fitted value is:
+
+```{r}
+(helicopter_shiftTime_mean <- apply(helicopter_mean, 1, mean))
+```
+
+The residual is:
+
+```{r}
+(helicopter_shiftTime_residual <- helicopter$count - rep(helicopter_shiftTime_mean, each = 20))
+```
+
+## (b)
+
+```{r}
+stripchart(split(helicopter_shiftTime_residual, with(helicopter, shiftTime)), method = "stack",  pch = 10)
+```
+
+There is unequal variance.
+
+## (c)
+
+Null hypothesis ($H_0$): all $\sigma_i$ ($i$ = 1, 2, 3, 4) are equal.
+
+Alternative hypothesis ($H_1$): not all $\sigma_i$ ($i$ = 1, 2, 3, 4) are equal.
+
+```{r}
+calculate_MSTR_MSE <- function(helicopter) {
+  (helicopter_shiftTime_median <- with(helicopter, tapply(count, shiftTime, median)))
+  (helicopter_shiftTime_median_residual <- abs(helicopter$count - rep(helicopter_shiftTime_median, each = 20)))
+  helicopter_shiftTime_median_residual_each_group <- tapply(helicopter_shiftTime_median_residual, names(helicopter_shiftTime_median_residual), mean)
+  (MSTR_d <- 20*(sum((helicopter_shiftTime_median_residual_each_group-mean(helicopter_shiftTime_median_residual))^2))/3)
+  (MSE_d <- sum((rep(helicopter_shiftTime_median_residual_each_group, each = 20)-helicopter_shiftTime_median_residual)^2)/76)
+  return(list(MSTR_d = MSTR_d, MSE_d = MSE_d))
+}
+calculate_MSTR_MSE(helicopter)
+```
+
+Test statistics: $MSTR_d$ = 1.645833, $MSE_d$ = 0.9677632, so $F_{BF}^*$ = $\frac{MSTR_d}{MSE_d}$ = 1.7007
+
+Decision rule: $F(0.9; 3, 76)$ = `qf(0.9, 3, 76)` = 2.157293. Reject $H_0$ if $F_{BF}^* > F(0.9; 3, 76)$
+
+Conclusion: since $F_{BF}^* < F(0.9; 3, 76)$, we cannot reject $H_0$, so conclude $H_0$.
+
+p-value: `1-pf(1.7007, 3, 76)` = 0.1739868.
+
+Not consistent with my conclusion in part (b).
+
+## (d)
+
+From part (a), we know the mean are: $\bar{Y}_{1.}$ = 3.90, $\bar{Y}_{2.}$ = 1.15, $\bar{Y}_{3.}$ = 2.00, $\bar{Y}_{4.}$ = 3.40.
+
+so $s_{i}$ will be:
+
+```{r}
+(helicopter_shiftTime_sd <- 
+   tapply(helicopter_shiftTime_residual, names(helicopter_shiftTime_residual), function(x) {
+     sqrt(sum((x)^2)/19)
+}))
+```
+
+Now determined the three relationships:
+
+$\frac{s^2_i}{\bar{Y}_{i.}}$
+
+```{r}
+helicopter_shiftTime_sd^2 / helicopter_shiftTime_mean
+```
+
+$\frac{s_i}{\bar{Y}_{i.}}$
+
+```{r}
+helicopter_shiftTime_sd / helicopter_shiftTime_mean
+```
+
+$\frac{s_i}{\bar{Y}_{i.}^2}$
+
+```{r}
+helicopter_shiftTime_sd / helicopter_shiftTime_mean^2
+```
+
+From the result, we know the transformation $\frac{s^2_i}{\bar{Y}_{i.}}$ is most stable.
+
+## (e)
+
+```{r}
+library(MASS)
+lambda_transformation <- function(lambda) {
+  count <- helicopter$count+1
+  n = length(count)
+  k2 = (Reduce(`*`, count))^(1/n)
+  k1 = 1/(lambda * k2^(lambda - 1))
+  if (lambda != 0) {
+    count <- k1 * ((count)^lambda - 1)
+  } else {
+    count <- k2 * log(count)
+  }
+  return(count)
+}
+calculate_SSE <- function(lambda) {
+  count <- lambda_transformation(lambda)
+  count_mean <- tapply(count, helicopter$shiftTime, mean)
+  count_residual <- count - rep(count_mean, each = 20)
+  count_sq <- tapply(count_residual, names(count_residual), function(x) {
+    sum((x)^2)
+})
+  return(sum(count_sq))        
+}
+
+test_seq <- seq(-1, 1, by = 0.1)
+names(test_seq) <- seq(-1, 1, by = 0.1)
+sapply(test_seq, calculate_SSE)
+```
+
+From the boxcox result, we know square root (0.5) transformation is best.
+
+## (f)
+
+Bartlett:
+
+```{r}
+calculate_Bartlett <- function(lambda) {
+  count <- lambda_transformation(lambda)
+  count_mean <- tapply(count, helicopter$shiftTime, mean)
+  count_residual <- count - rep(count_mean, each = 20)
+  count_sq <- tapply(count_residual, names(count_residual), function(x) {
+    sum((x)^2)/(length(x)-1)
+  })
+  count_pool <- sum(19*count_sq)/76
+  result <- sum(19*log(count_pool/count_sq))
+  return(result)
+}
+(bartlett_result <- sapply(test_seq, calculate_Bartlett))
+plot(test_seq, bartlett_result)
+```
+
+The minimum is achieved at $\lambda$ = 0.1
+
+Hartley:
+
+```{r}
+calculate_Hartley <- function(lambda) {
+  count <- lambda_transformation(lambda)
+  count_mean <- tapply(count, helicopter$shiftTime, mean)
+  count_residual <- count - rep(count_mean, each = 20)
+  count_sq <- tapply(count_residual, names(count_residual), function(x) {
+    sum((x)^2)/(length(x)-1)
+  })
+  result <- max(count_sq)/min(count_sq)
+  return(result)
+}
+(Hartley_result <- sapply(test_seq, calculate_Hartley))
+plot(test_seq, Hartley_result)
+```
+
+The minimum is also achieved at $\lambda$ = 0.1
+
+So the finding is not consistent with the result in part (e). Here Bartlett and Hartley test statistic indicate that the transformation should be logarithm, while in part (e), the boxcox statistic indicates the transformation should be square root.
+
+# 18.16
+
+## (a)
+
+mean for each shift time:
+
+```{r}
+helicopter_sqrt <- helicopter
+helicopter_sqrt$count <- helicopter_sqrt$count ^ 0.5
+(helicopter_sqrt_shiftTime_mean <- with(helicopter_sqrt, tapply(count, shiftTime, mean)))
+```
+
+residuals:
+
+```{r}
+(helicopter_sqrt_shiftTime_residual <- helicopter_sqrt$count - rep(helicopter_sqrt_shiftTime_mean, each = 20))
+```
+
+## (b)
+
+strip plot:
+
+```{r}
+stripchart(split(helicopter_sqrt_shiftTime_residual, with(helicopter, shiftTime)), method = "stack",  pch = 10)
+```
+
+qq plot:
+
+```{r}
+qqp <- qqnorm(helicopter_sqrt_shiftTime_residual)
+cor(qqp$x, qqp$y)
+```
+
+The coefficient is 0.9632, so it is almost normal distributed, which means the transformation is reasonable.
+
+## (c)
+
+Null hypothesis ($H_0$): all $\sigma_i$ ($i$ = 1, 2, 3, 4) are equal.
+
+Alternative hypothesis ($H_1$): not all $\sigma_i$ ($i$ = 1, 2, 3, 4) are equal.
+
+```{r}
+calculate_MSTR_MSE(helicopter_sqrt)
+```
+
+Test statistics: $MSTR_d$ = 0.07895208, $MSE_d$ = 0.2044109, so $F_{BF}^*$ = $\frac{MSTR_d}{MSE_d}$ = 0.386242
+
+Decision rule: $F(0.9; 3, 76)$ = `qf(0.9, 3, 76)` = 2.157293. Reject $H_0$ if $F_{BF}^* > F(0.9; 3, 76)$
+
+Conclusion: since $F_{BF}^* < F(0.9; 3, 76)$, we cannot reject $H_0$, so conclude $H_0$.
+
+It is consistent with my conclusion in part (b).
+
+# 21.7
+## (a)
+The age of subjects is suspected to be highly correlated to the reduction of lipid level (response variable).
+Therefore, blocking the subjects into groups according to age can provide more precise results.
+
+## (b)
+
+$\bar{Y}_{1.} = 0.5167$, $\bar{Y}_{2.} = 0.6067$, $\bar{Y}_{3.} = 0.67$, $\bar{Y}_{4.} = 1.1567$, $\bar{Y}_{5.} = 1.27$
+
+$\bar{Y}_{.1} = 1.11$, $\bar{Y}_{.2} = 0.992$, $\bar{Y}_{.3} = 0.43$
+
+$\bar{Y}_{..} = 0.844$
+
+According to the formula ${e}_{ij} = {Y}_{ij} - \bar{Y}_{i.} - \bar{Y}_{.j} + \bar{Y}_{..}$, we can calculate the residuals as:
+
+${e}_{11} = -0.0527$, ${e}_{12} = 0.0053$, ${e}_{13} = 0.0473$
+
+${e}_{21} = -0.0127$, ${e}_{22} = -0.0047$, ${e}_{23} = 0.0173$
+
+${e}_{31} = 0.004$, ${e}_{32} = -0.008$, ${e}_{33} = 0.004$
+
+${e}_{41} = -0.0227$, ${e}_{42} = 0.0153$, ${e}_{43} = 0.0073$
+
+${e}_{51} = 0.084$, ${e}_{52} = -0.008$, ${e}_{53} = -0.076$
+
+```{r, warning=FALSE, echo = FALSE}
+Yhat = c(0.7827, 0.6647, 0.1027, 0.8727, 0.7547, 0.1927, 0.936, 0.818, 0.256, 1.4227, 1.3047, 0.7427, 1.536, 1.418, 0.856)
+res = c(-0.0527, 0.0053, 0.0473, -0.0127, -0.0047, 0.0173, 0.004, -0.008, 0.004, -0.0227, 0.0153, 0.0073, 0.084, -0.008, -0.076)
+par(mfrow = c(1,2))
+plot(Yhat, res, main = "Residual plot againt fitted values", xlab = "Yhat", ylab = "residuals", cex.main = 1)
+qqnorm(res, main = "Normal Probability Plot", xlab = "Expvalue", ylab = "Residuals", cex.main = 1)
+```
+
+From the above residual plots, we find that there is no evidence of a curvilinear pattern there and no indication of the existence of unequal error variances. In addition, the right plot does not suggest any strong departures from a normal error distribution. 
+
+## (c)
+```{r, echo=FALSE, warning=FALSE}
+df = data.frame(x=rep(1:3, 5), val=c(0.73, 0.67, 0.15, 0.86, 0.75, 0.21, 0.94, 0.81, 0.26, 1.4, 1.32, 0.75, 1.62, 1.41, 0.78), block=rep(paste0("block", 1:5), each=3))
+ggplot(data = df, aes(x, val)) + geom_line(aes(linetype=block)) +
+  scale_x_discrete(breaks=c("1","2","3"), labels=c("Extremely Low", "Fairly Low", "Moderately Low")) +
+  ggtitle("Plot of lipit level by blocks") +
+  xlab("Fat content of diet") +
+  ylab("Reduction in lipit levels")
+```
+
+The plot suggests that there is no important interaction effects between blocks and treatments on the resonses since the reponse curves are almost parallel. In other words, it supports the appropriateness of the no-interaction assumption.
+
+## (d)
+The Turkey's interaction model is: $Y_{ij}=\mu_{..} + \rho_i + \tau_j + D\rho_{i}{\tau}_{j} + \epsilon_{ij}$
+
+$H_0: D = 0$
+
+$H_1: D \neq 0$
+
+$\hat\rho_1=-0.3273$, $\hat\rho_2=-0.2373$, $\hat\rho_3=-0.174$, $\hat\rho_4=0.3127$, $\hat\rho_5=0.426$
+
+$\hat\tau_1=0.266$, $\hat\tau_2=0.148$, $\hat\tau_3=-0.414$ 
+
+$SSTO = 2.7586$, $SSBL = 1.4188$, $SSTR = 1.3203$
+
+$\hat{D} = 0.2727$
+
+$SSBLTR^* = 0.0093$, $MSBLTR^* = SSBLTR^*/1 = 0.0093$
+
+$SSRem^* = SSTO - SSBL - SSTR - SSBLTR^* = 0.0102$, $MSRem^* = SSRem^*/7 = 0.00146$
+
+$F^* = MSBLTR^*/MSRem^* = \frac{0.093}{0.0146} = 6.3613$
+
+$F(0.99, 1, 7) = 12.2464$
+
+Therefore, the decision rule is: if $F^* \geq F(0.99, 1, 7)$, then reject $H_0$; otherwise, accept $H_0$.
+Here, $6.3613 \leq 12.2464$, so we cannot reject $H_0$. In other words, we conclude that there is no interation effects.
+The p-value is 0.0397, which is greater than 0.01, leading to the same conclusion.
+
+R code:
+```{r, warning=FALSE}
+Yij = c(0.73, 0.67, 0.15, 0.86, 0.75, 0.21, 0.94, 0.81, 0.26, 1.4, 1.32, 0.75, 1.62, 1.41, 0.78)
+Yhat = 0.844
+SSTO =sum((Yij-Yhat)^2)
+rho = c(-0.3273, -0.2372, -0.174, 0.3127, 0.426)
+SSBL = 3*sum(rho^2)
+tau = c(0.266, 0.148, -0.414)
+SSTR = 5*sum(tau^2)
+Dhat = (sum(Yij*(rep(rho, each = 3))*(rep(tau, 5))))/((SSBL/3)*(SSTR/5))
+SSBLTR_star = sum((Dhat*(rep(rho, each = 3))*(rep(tau, 5)))^2)
+SSRem_star = SSTO - SSBL - SSTR - SSBLTR_star
+F_star = (SSBLTR_star/1)/(SSRem_star/7)
+threshold = qf(0.99, 1, 7)
+pVal = 1-pf(F_star, 1, 7)
+```
+
+# 21.8
+## (a)
+Assume the randomized block model is appropriate, we have:
+
+$SSTO = 2.7586$, $SSBL = 1.4188$, $SSTR = 1.3203$, $SSE = SSTO-SSBL-SSTR = 0.0195$
+
+$df(SSTO) = 3*5-1 = 14$, $df(SSBL) = 5-1 = 4$, $df(SSTR)=3-1=2$, $df(SSE)=14-4-2=8$
+
+The ANOVA table is:
+```{r, echo = FALSE, warning=FALSE}
+SSE = SSTO - SSBL - SSTR
+anovaTable = data.frame(c("Block", "Treatment", "Error", "Total"), c(4, 2, 8, 14), c(1.4188, 1.3203, 0.0195, 2.7586), c(c(1.4188, 1.3203, 0.0195)/c(4, 2, 8), NA))
+names(anovaTable) = c("Source", "df", "SS", "MS")
+library("knitr")
+kable(anovaTable)
+```
+
+## (b)
+From the following bar interval plot, we can see that the means between treatment 1 (Extremely low) and treatment 2 (Fairly low) do not differ much. However, the mean of treatment 3 (Moderately low) differs from other two means substantially.
+
+```{r, echo=FALSE, warning=FALSE}
+x = data.frame(t(matrix(Yij, 3,5)))
+names(x) = c("treatment1", "treatment2", "treatment3")
+treatment_mean = sapply(x, mean)
+treatment_sd = sapply(x, sd)
+upper = treatment_mean+ 1.96*treatment_sd
+lower = treatment_mean- 1.96*treatment_sd
+barplot2(treatment_mean, plot.ci = TRUE, ci.u = upper, ci.l = lower, ylim = c(0,2), main = "Bar-interval graph for treatment means")
+```
+
+## (c)
+$H_0$: All $\tau_j$ equal to zero; $H_1$: Not all $\tau_j$ equals to zero
+
+$F^* = MSTR/MSE = 0.66015/0.0024375 = 270.83$
+
+$F(0.95, 2, 8) = 4.45897$
+
+$p-val = 4.487283e-08$
+
+The decision rule is: if $F^*$ is greater thatn 4.45897, then reject $H_0$, otherwise, accept $H_1$.
+Here, $270.83 \geq 4.45897$, so we reject $H_0$, concluding that the mean reduction in lipid level differ for three diets.
+
+The p-value is almost zero, which is less than 0.05, leading to the same conclusion.
+## (d)
+For $L_1 = \mu_{.1} - \mu_{.2}$, the estimated mean and standard deviation are:
+
+$\hat L_1 = \bar Y_{.1} - \bar Y_{.2} = 1.11-0.992 = 0.118$
+
+$s^2(\hat L_1) = \frac{2MSE}{5} = \frac{2*0.0024375}{5} = 0.00975$, $s(\hat L_1) = 0.0312$
+
+The Bonferroni multiplier is: $B = t(0.9875, 8) = 2.7515$
+
+0.95 CI = ($\hat L_1 - B*s(\hat L_1)$, $\hat L_1 + B*s(\hat L_1)$)
+
+Therefore, the 95% confidence interval for $L_1$ is: (0.0322, 0.2038).
+
+For $L_2 = \mu_{.2} - \mu_{.3}$, the estimated mean and standard deviation are:
+
+$\hat L_2 = \bar Y_{.2} - \bar Y_{.2} = 0.992 - 0.43= 0.562$
+
+$s^2(\hat L_2) = \frac{2MSE}{5} = \frac{2*0.0024375}{5} = 0.00975$, $s(\hat L_2) = 0.0312$
+
+The Bonferroni multiplier is: $B = t(0.9875, 8) = 2.7515$
+
+0.95 CI = ($\hat L_2 - B*s(\hat L_2)$, $\hat L_2 + B*s(\hat L_2)$)
+
+Therefore, the 95% confidence interval for $L_2$ is: (0.4762, 0.6478).
+
+We find that both the CI's for $L_1$ and $L_2$ do NOT include zero. It means that the first diet treatment and the second diet treatment have different effects on reduction in lipid level; and the second diet treatment and the third diet treatment have different effects on reduction in lipid level.
+
+## (e)
+$H_0$: All $\rho_i$ equal to zero; $H_1$: Not all $\rho_i$ equals to zero
+
+$F^* = MSBL/MSE = 0.3547/0.0024375 = 145.5179$
+
+$F(0.95, 4, 8) = 3.8379$
+
+$p-val = 1.670994e-07$
+
+The decision rule is: if $F^*$ is greater thatn 3.8379, then reject $H_0$, otherwise, accept $H_1$.
+Here, $145.5179 \geq 3.8379$, so we reject $H_0$, concluding that blocking effects are present.
+
+The p-value is almost zero, which is less than 0.05, leading to the same conclusion.
+
+## (f)
+In this experiment, the response variable is REDUCTION in lipid level. Before being assigned experimental diets, the lipid level of subjects can be considered to be "standard". Imagin we have a control group with standard diet, then the response values within this control group are expected to be around zero. Thus, a control treatment is not needed for this experiment.
+
+# 21.19
+$\hat E = \frac{(4*MSBL+4*2*MSE)/(4*3)}{MSE} = \frac{(4*0.3547+8*0.0024375)/12}{0.0024375} = 49.17$
+
+Therefore, the efficiency of the use of blocking is 49.17, indicating a high efficiency.
