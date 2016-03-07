@@ -1,0 +1,262 @@
+---
+title: "STA207 homework 6"
+author: "Juanjuan Hu, Zhen Zhang"
+date: "March 2, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 2
+
+## a
+
+```{r}
+library(ggplot2)
+library(lme4)
+rat <- read.csv("ratdrink.csv")
+ggplot(rat, aes(y = weight, x = weeks)) + facet_wrap(~ treat) + geom_point() + geom_line(aes(group = subject))
+```
+
+From the plot, it is easily seen that for the group thiouracil, the level of weight is smaller than the other two groups, and for the group thyroxine, some of the subjects' weight are more than that of the subjects in the control group, while some are less than that.
+
+## b
+
+```{r}
+rat$subject <- as.factor(rat$subject)
+rat$weeks <- as.factor(rat$weeks)
+with(rat, boxplot(weight ~ weeks * treat))
+```
+
+In terms of the mean, thyroxine is the biggest in the level of weight, followed by control group, with thiouracil the smallest level. This result is consistent with part a. For the variance, the big box of thyroxine indicates a larger variance, also the same with part a.
+
+## c
+
+```{r}
+rat_aov <- lmer(weight ~ weeks * treat + (1|subject), data = rat)
+```
+
+The plot:
+
+```{r}
+par(mfrow = c(1, 2))
+plot(rat$weight ~ fitted(rat_aov))
+plot(resid(rat_aov) ~ fitted(rat_aov))
+abline(h = 0)
+```
+
+The boxplot:
+
+```{r}
+rat_resid_dataframe <- cbind(rat, residual = resid(rat_aov))
+ggplot(rat_resid_dataframe, aes(x = weeks, y = residual)) + facet_wrap(~treat) + geom_boxplot()
+```
+
+For the model plot, we can see that there is a straight line, which indicates a good fit. But in case of residual plot, we can see a trend of increasing variance. The boxplot here told us the almost the same pattern of residuals among different groups, fluctuate below and up 0. so this model is suitable.
+
+## d
+
+Anova table:
+
+```{r}
+anova(rat_aov)
+```
+
+Parameter estimates and standard errors:
+
+```{r}
+summary(rat_aov)
+```
+
+Stepwise:
+
+```{r}
+first_set <- c("weeks", "treat", "weeks:treat")
+sapply(first_set, function(x) {
+  AIC(lmer(as.formula(sprintf("weight~%s + (1|subject)", x)), data = rat))
+})
+AIC(aov(weight ~ weeks * treat, data = rat))
+```
+
+So we should select "weeks:treat" first, with "1|subject". Now the second step:
+
+```{r}
+second_set <- c("weeks", "treat", "weeks:treat")
+sapply(second_set, function(x) {
+  AIC(lmer(as.formula(sprintf("weight~weeks:treat + %s + (1|subject)", x)), data = rat))
+})
+AIC(aov(weight ~ weeks:treat + weeks, data = rat))
+AIC(aov(weight ~ weeks:treat + treat, data = rat))
+```
+
+No improvement. So our final model becomes:
+
+```{r}
+final1 <- lmer(weight ~ weeks:treat + (1|subject), data = rat)
+```
+
+# 3
+
+## a
+
+```{r}
+rat <- read.csv("ratdrink.csv")
+rat$T <- rat$weeks
+rat_aov2 = lmer(weight ~ (1|subject) + T + (0 + T|subject) + treat, data = rat)
+```
+
+plot:
+
+```{r}
+rat$subject <- as.factor(rat$subject)
+rat$weeks <- as.factor(rat$weeks)
+par(mfrow = c(1, 2))
+plot(resid(rat_aov2) ~ fitted(rat_aov2))
+abline(h = 0)
+hist(resid(rat_aov2))
+```
+
+boxplot:
+
+```{r}
+rat_resid_dataframe <- cbind(rat, residual = resid(rat_aov2))
+ggplot(rat_resid_dataframe, aes(x = weeks, y = residual)) + facet_wrap(~treat) + geom_boxplot()
+```
+
+We can see the equal variance from fitted value versus residual plot, and is normal distributed residuals, and different residual pattern different control groups.
+
+## b
+
+```{r}
+rat$T2 <- (rat$T)^2
+rat_aov3 = lmer(weight ~ (1|subject) + T + T2 + (0 + T|subject) + (0 + T2|subject) + treat, data = rat)
+```
+
+plot:
+
+```{r}
+par(mfrow = c(1, 2))
+plot(resid(rat_aov3) ~ fitted(rat_aov3))
+abline(h = 0)
+hist(resid(rat_aov3))
+```
+
+boxplot:
+
+```{r}
+rat_resid_dataframe <- cbind(rat, residual = resid(rat_aov3))
+ggplot(rat_resid_dataframe, aes(x = weeks, y = residual)) + facet_wrap(~treat) + geom_boxplot()
+```
+
+We can see the unequal variance from fitted value versus residual plot, and is not normal distributed residuals (left skewed), and different residual pattern different control groups.
+
+## c
+
+```{r}
+AIC(rat_aov2)
+AIC(rat_aov3)
+```
+
+Based on aic criterion, the second model is better.
+
+```{r}
+anova(rat_aov3)
+summary(rat_aov3)
+```
+
+## d
+
+It is possible. The model is:
+
+```{r}
+rat_aov4 = lmer(weight ~ (1|subject) + T + T2 + treat + treat:T + treat:T2, data = rat)
+```
+
+
+## e
+
+```{r}
+rat_aov4 = lmer(weight ~ (1|subject) + T + T2 + treat + treat:T + treat:T2, data = rat)
+anova(rat_aov4)
+summary(rat_aov4)
+```
+
+Next is the stepwise:
+
+```{r}
+first_set <- c("T", "treat", "T:treat", "T2", "T2:treat")
+sapply(first_set, function(x) {
+  AIC(lmer(as.formula(sprintf("weight~%s + (1|subject)", x)), data = rat))
+})
+sapply(first_set, function(x) {
+  AIC(aov(as.formula(sprintf("weight~%s", x)), data = rat))
+})
+```
+
+So "T:treat" is selected.
+
+```{r}
+second_set <- c("T", "treat", "T2", "T2:treat")
+sapply(second_set, function(x) {
+  AIC(lmer(as.formula(sprintf("weight~%s + (1|subject) + T:treat", x)), data = rat))
+})
+sapply(second_set, function(x) {
+  AIC(aov(as.formula(sprintf("weight~%s + T:treat", x)), data = rat))
+})
+```
+
+So "treat" is selected.
+
+```{r}
+third_set <- c("T", "T2", "T2:treat")
+sapply(third_set, function(x) {
+  AIC(lmer(as.formula(sprintf("weight~%s + (1|subject) + T:treat + treat", x)), data = rat))
+})
+sapply(third_set, function(x) {
+  AIC(aov(as.formula(sprintf("weight~%s + T:treat + treat", x)), data = rat))
+})
+```
+
+So "T2:treat" is selected.
+
+```{r}
+third_set <- c("T", "T2")
+sapply(third_set, function(x) {
+  AIC(lmer(as.formula(sprintf("weight~%s + (1|subject) + T:treat + treat + T2:treat", x)), data = rat))
+})
+sapply(third_set, function(x) {
+  AIC(aov(as.formula(sprintf("weight~%s + T:treat + treat + T2:treat", x)), data = rat))
+})
+```
+
+No improvement.
+
+So the final model:
+
+```{r}
+final2 <- lmer(weight ~ (1|subject) + T:treat + treat + T2:treat, data = rat)
+summary(final2)
+anova(final2)
+```
+
+## f
+
+```{r}
+# final1
+rat_resid_dataframe <- cbind(rat, residual = resid(final1))
+ggplot(rat_resid_dataframe, aes(x = weeks, y = residual)) + facet_wrap(~treat) + geom_boxplot()
+# final2
+rat_resid_dataframe <- cbind(rat, residual = resid(final2))
+ggplot(rat_resid_dataframe, aes(x = weeks, y = residual)) + facet_wrap(~treat) + geom_boxplot()
+```
+
+They are almost the same pattern. The means are a little different, and the variances are a little different either.
+
+## g
+
+```{r}
+rat_aov5 = lmer(weight ~ (1|subject) + T + T2 + treat + treat:T + treat:T2 + (0 + (treat:T)|subject) + (0 + (treat:T2)|subject), data = rat)
+```
+

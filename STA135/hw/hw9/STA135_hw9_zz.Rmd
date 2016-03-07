@@ -1,0 +1,95 @@
+---
+title: "STA135 homework9"
+author: "Zhen Zhang"
+date: "March 2, 2016"
+output: pdf_document
+---
+
+# 7.1
+
+```{r}
+z <- c(10, 5, 7, 19, 11, 8)
+y <- c(15, 9, 3, 25, 7, 13)
+model1 <- lm(y ~ z)
+# beta hat
+model1$coefficients
+# fitted values
+model1$fitted.values
+# residuals
+model1$residuals
+# residual sum of squares
+t(model1$residuals) %*% model1$residuals
+```
+
+# 7.9
+
+```{r}
+z <- c(-2, -1, 0, 1, 2)
+y <- matrix(c(5, 3, 4, 2, 1, -3, -1, -1, 2, 3), nrow = 5)
+model2 <- lm(y ~ z)
+# parameters
+model2$coefficients
+# fitted values
+model2$fitted.values
+# residuals
+model2$residuals
+# verification
+(LRS = t(y) %*% y)
+(RHS = t(model2$fitted.values) %*% model2$fitted.values + t(model2$residuals) %*% model2$residuals)
+```
+
+They are identical.
+
+# 7.19
+
+```{r}
+satellite <- read.table("T7-5.DAT")
+names(satellite) <- c(paste0("Z", 1:5), "Y")
+model3 <- lm(log(Y) ~ ., data = satellite)
+summary(model3)
+```
+
+Based on the summary statistics, we should select $Z_2$ and $Z_4$.
+
+```{r}
+model4 <- lm(log(Y) ~ Z2 + Z4, data = satellite)
+summary(model4)
+```
+
+The model is $ln(Y) = 2.75648 - 0.32182 * Z_2 + 0.11382 * Z_4$
+
+```{r}
+plot(model4, which = 2)
+```
+
+Although it is not perfectly normal distributed, due to its small sample, we should not count it as a problem.
+
+# 8.3
+
+```{r}
+sigma = diag(c(2, 4, 4))
+```
+
+The eigenvalues are 2, 4 and 4, and the eigenvectors are [1, 0, 0], [0, 1, 0] and [0, 0, 1] or [1, 0, 0], [0, 0, 1] and [0, 1, 0], since the eigenvalues are identical for the second and the third one.
+
+# 8.11
+
+```{r}
+census <- read.table("T8-5.DAT")
+census$V5 <- 10 * census$V5
+# covariance matrix
+census_cov <- cov(census)
+eigen(census_cov)
+# the first two component analysis
+eigen(census_cov)$vectors[, 1:2]
+# total proportion explained
+sum(eigen(census_cov)$values[1:2]) / sum(eigen(census_cov)$values)
+```
+
+```{r}
+census_y1 <- t(eigen(census_cov)$vectors[, 1] %*% t(census))
+census_y2 <- t(eigen(census_cov)$vectors[, 2] %*% t(census))
+cor(cbind(census_y1, census_y2), census)
+```
+
+The correlation table indicates, the first component, is mostly dependent on the first variable, goverment employment, and second component are influenced by the second, third and fifth variable. Variable 5, median home value, has little impact in the first component, though large influence on the second component.

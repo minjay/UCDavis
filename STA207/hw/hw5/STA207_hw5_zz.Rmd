@@ -1,0 +1,449 @@
+---
+title: "STA207 homework5"
+author: "Juanjuan Hu, Zhen Zhang"
+date: "February 18, 2016"
+output: pdf_document
+---
+
+# 26.4
+
+```{r, echo=FALSE,cache=FALSE, include=FALSE}
+library(xlsx)
+library(dplyr)
+library(ggplot2)
+library("knitr")
+plant <- read.xlsx2("PR26.4.xlsx", 1)
+plant$Cases = as.numeric(as.character(plant$Cases))
+```
+
+## (a)
+
+The residuals are:
+```{r, warning=FALSE}
+a = data.frame(plant%>%group_by(Machine, Operator)%>%summarise(mean = mean(Cases)))
+plant$Cases_bar = rep(a$mean, each = 5)
+plant$residual = plant$Cases-plant$Cases_bar
+plant
+par(mfrow=c(1,2))
+plot(plant$Cases_bar, plant$residual, xlab = "fitted values", 
+     ylab = "residuals", main = "plot of residuals vs fitted values")
+qqplot = qqnorm(plant$residual, main = "Normal Probability Plot", 
+                xlab = "Expvalue", ylab = "Residuals", cex.main = 1)
+cor(qqplot$x, qqplot$y)
+```
+There is no obvious pattern in the residuals plot and the the qq plot does not show departure from normatlity. Thus, we consdier the model (26.7) is appropriate.
+
+## (b)
+
+```{r, warning=FALSE, echo=FALSE}
+par(mfrow = c(1,3))
+machine1 = subset(plant, Machine == 1)
+machine2 = subset(plant, Machine == 2)
+machine3 = subset(plant, Machine == 3)
+plot(x = machine1$residual, y = machine1$Operator, pch=19, 
+     xlab = "residuals", ylab = "Operator", main = "machine1")
+abline(h = seq(1, 4))
+plot(x = machine2$residual, y = machine2$Operator, pch=19, 
+     xlab = "residuals", ylab = "Operator", main = "machine2")
+abline(h = seq(1, 4))
+plot(x = machine3$residual, y = machine3$Operator, pch=19, 
+     xlab = "residuals", ylab = "Operator", main = "machine3")
+abline(h = seq(1, 4))
+```
+The aligned residual dot plots by machines support the assupmtion of constancy of the error variance.
+
+# 26.5
+
+## (a)
+
+The operator effects cannot be distinguished from the effects of shifts in this study. 
+
+## (b)
+
+```{r, warning=FALSE, echo=FALSE}
+ggplot(plant, aes(x = Cases, y = Machine,shape = Operator)) +
+  geom_point() +
+  ggtitle("Dot plot of cases")
+```
+It seems that for machine 1 and machine 2, the factor effects are present. However, we need further test on this.
+
+## (c)
+
+```{r}
+result = aov(Cases ~ Machine + Machine/Operator, data = plant)
+summary(result)
+```
+```{r, echo=FALSE}
+anovaTable = data.frame(c("Machine", "Operator", "Error", "Total"), c(2, 9, 48, 59), c(1696, 2272, 1133, 5101), c(c(1696, 2272, 1133)/c(2, 9, 48), NA))
+names(anovaTable) = c("Source", "df", "SS", "MS")
+```
+The ANOVA table is:
+```{r}
+kable(anovaTable)
+```
+
+
+## (d)
+
+```{r}
+p_val = 1-pf(35.3, 2, 48)
+p_val
+```
+$H_0$: all $\alpha_0 = 0$
+
+$H_1$: not all $\alpha_0$ equal to zero
+
+$F^*=\frac{848}{24}=35.3$
+
+$F(0.99, 2, 48) = 5.075$
+
+The decision rule is: if $F^*$ is greater thatn 5.075, then reject $H_0$, otherwise, accept $H_1$. Here, 35.3 > 4.0517, so we reject $H_0$, concluding that the mean outputs differ for the three machine models. The p value is almost zero, leading to the same conclusion.
+
+## (e)
+
+```{r}
+p_val = 1-pf(10.5, 9, 48)
+p_val
+```
+
+$H_0$: all $\beta_{j(i)} = 0$
+
+$H_1$: not all $\beta_{j(i)} = 0$ equal to zero
+
+$F^*=\frac{252}{24}=10.5$
+
+$F(0.99, 9, 48) = 2.802$
+
+The decision rule is: if $F^*$ is greater than 2.802, then reject $H_0$, otherwise, accept $H_1$. Here, 10.5 > 2.802, so we reject $H_0$, concluding that the mean outputs differ for the operators assigned to each machine. The p value is almost zero, leading to the same conclusion.
+
+## (f)
+
+```{r}
+b = data.frame(plant%>%group_by(Machine)%>%summarise(mean = mean(Cases)))
+plant$Yj_bar_bar = rep(b$mean, each = 20)
+plant$operatorEffect = plant$Cases_bar-rep(b$mean, each = 20)
+SSB_1 = sum(subset(plant, Machine ==1)$operatorEffect^2)
+SSB_2 = sum(subset(plant, Machine ==2)$operatorEffect^2)
+SSB_3 = sum(subset(plant, Machine ==3)$operatorEffect^2)
+```
+From the R output, we know that: $SSB(A_1)=599$,  $SSB(A_2)=1539$, $SSB(A_3)=135$
+**Test for $\beta_{j(1)}$:**
+$H_0$: all $\beta_{j(1)} = 0$
+
+$H_1$: not all $\beta_{j(1)} = 0$ equal to zero
+
+$F^*=\frac{(599/3)}{24}=8.32$
+
+$F(0.99, 3, 48) = 4.22$
+
+The decision rule is: if $F^*$ is greater than 4.22, then reject $H_0$, otherwise, accept $H_1$. Here, 8.32 > 4.22, so we reject $H_0$, concluding that the mean outputs differ for the operators assigned to the first machine. 
+
+**Test for $\beta_{j(2)}$:**
+$H_0$: all $\beta_{j(2)} = 0$
+
+$H_1$: not all $\beta_{j(2)} = 0$ equal to zero
+
+$F^*=\frac{(1539/3)}{24}=21.4$
+
+$F(0.99, 3, 48) = 4.22$
+
+The decision rule is: if $F^*$ is greater than 4.22, then reject $H_0$, otherwise, accept $H_1$. Here, 21.4 > 4.22, so we reject $H_0$, concluding that the mean outputs differ for the operators assigned to the second machine. 
+
+**Test for $\beta_{j(3)}$:**
+$H_0$: all $\beta_{j(3)} = 0$
+
+$H_1$: not all $\beta_{j(3)} = 0$ equal to zero
+
+$F^*=\frac{(135/3)}{24}=1.88$
+
+$F(0.99, 3, 48) = 4.22$
+
+The decision rule is: if $F^*$ is greater thatn 4.22, then reject $H_0$, otherwise, accept $H_1$. Here, 1.88 < 4.22, so we cannot reject $H_0$, concluding that the mean outputs do not differ for the operators assigned to the third machine.
+
+## (g)
+
+```{r}
+1-(0.99)^5
+```
+Therefore, the family level of significante for the combined tests is 0.05. In summary, the mean outputs differ for the machines and for the operators. For each machine seperately, the mean outputs differ for operators assigned to machine 1 and machine2, but not for machine 3.
+
+# 26.6
+
+## (a)
+
+```{r}
+unique(plant$Yj_bar_bar)
+```
+$\bar{Y}_{1..}=61.2$, $\bar{Y}_{2..}=71$, $\bar{Y}_{3..}=73.5$
+
+$\hat{L}_1 = \bar{Y}_{1..}-\bar{Y}_{2..}=61.2-71=-9.8$, $\hat{L}_2 = \bar{Y}_{1..}-\bar{Y}_{3..}=61.2-73.5=-12.3$, $\hat{L}_3 = \bar{Y}_{2..}-\bar{Y}_{3..}=71-73.5=-2.5$
+
+$s^2({\hat L_i})=2*s^2({\bar{Y}_{1..}})=2*MSE/bn=2*24/(4*5)=2.4$
+
+$s({\hat L_i})=1.55$
+
+$qtukey(0.95, 3, 48)=3.42$, $T=3.43/1.414=2.42$
+
+$\hat{L}_1+T*s({\hat{L_i}})=-9.8+2.42*1.55=-6.05$, $\hat{L}_1-T*s({\hat{L_i}})=-9.8-2.42*1.55=-13.6$
+
+$\hat{L}_2+T*s({\hat{L_i}})=-12.3+2.42*1.55=-8.55$, $\hat{L}_1-T*s({\hat{L_i}})=-12.3-2.42*1.55=-16.1$
+
+$\hat{L}_3+T*s({\hat{L_i}})=-2.5+2.42*1.55=1.25$, $\hat{L}_1-T*s({\hat{L_i}})=-2.5-2.42*1.55=-6.25$
+
+Therefore, the confidence intervals for the pairwise comparisons are:
+[-13.6, -6.05], [-16.1, -8.55], [-6.25, 1.25]. We find that the first two CIs do not contain zero, and the last one contains zero and conclude that mean outputs differ from machine 1 to machine 2, and from machine 1 to machine 3.
+
+## (b)
+
+```{r}
+unique(subset(plant, Machine == 1)$Cases_bar)
+```
+$\bar{Y}_{11.}=61.8$, $\bar{Y}_{12.}=67.8$, $\bar{Y}_{13.}=62.5$, $\bar{Y}_{14.}=52.6$
+
+$\hat{L}_1 = \bar{Y}_{11.}-\bar{Y}_{12.}=61.8-67.8=-6$, $\hat{L}_2 = \bar{Y}_{11.}-\bar{Y}_{13.}=61.8-62.5=-0.7$, $\hat{L}_3 = \bar{Y}_{11.}-\bar{Y}_{14.}=61.8-52.6=9.2$, $\hat{L}_4 = \bar{Y}_{12.}-\bar{Y}_{13.}=67.8-62.5=5.3$, $\hat{L}_5 = \bar{Y}_{12.}-\bar{Y}_{14.}=67.8-52.6=15.2$,$\hat{L}_6 = \bar{Y}_{13.}-\bar{Y}_{14.}=62.5-52.6=9.9$
+
+$s^2({\hat L_i})=2*MSE/n=2*24/5=9.6$
+
+$s({\hat L_i})=3.1$
+
+$B = t(1-0.05/12,48)=2.753$
+
+$\hat{L}_1+B*s({\hat{L_i}})=-6+2.753*3.1=2.53$, $\hat{L}_1-B*s({\hat{L_i}})=-6-2.753*3.1=-14.5$
+
+$\hat{L}_2+B*s({\hat{L_i}})=-0.7+2.753*3.1=7.83$, $\hat{L}_1-B*s({\hat{L_i}})=-0.7-2.753*3.1=-9.23$
+
+$\hat{L}_3+B*s({\hat{L_i}})=9.2+2.753*3.1=17.7$, $\hat{L}_1-B*s({\hat{L_i}})=9.2-2.753*3.1=0.67$
+
+$\hat{L}_4+B*s({\hat{L_i}})=5.3+2.753*3.1=13.8$, $\hat{L}_1-B*s({\hat{L_i}})=5.3-2.753*3.1=-3.23$
+
+$\hat{L}_5+B*s({\hat{L_i}})=15.2+2.753*3.1=23.7$, $\hat{L}_1-B*s({\hat{L_i}})=15.2-2.753*3.1=6.67$
+
+$\hat{L}_6+B*s({\hat{L_i}})=9.9+2.753*3.1=18.4$, $\hat{L}_1-B*s({\hat{L_i}})=9.9-2.753*3.1=1.37$
+
+Therefore, the pairwise comparisons CIs are:
+[-14.5, 2.53], [-9.23, 7.83], [0.67, 17.7], [-3.23, 13.8], [6.67, 23.7], [1.37, 18.4]. We conclude that the mean output differ from operator 1 to operator 4, from operator 2 to operator 4, and from operator 3 to operator 4.
+
+## (c)
+
+$\hat L=(1/3)*(\bar{Y}_{11.}+\bar{Y}_{12.}+\bar{Y}_{13.})-\bar{Y}_{14.}=(61.8+67.8+62.5)/3-52.6=11.4$
+
+$s^2(\hat L)=(3*(1/3)^2+1)*MSE/5=(3*(1/3)^2+1)*24/5=6.4$, $s(\hat L)=2.53$
+
+$T = t(0.995, 48)=2.682$
+
+$\hat{L}_6+T*s({\hat{L}})=11.4+2.682*2.53=18.2$, $\hat{L}_1-T*s({\hat{L}})=11.4-2.682*2.53=4.61$
+
+Therefore, the CI is [4.61, 18.2]. Since the confidence interval does not contain zero, we conclude that that the mean output of operator 4 is significantly less than the average outputs from other three operators.
+
+
+# 26.19 Plant acid levels
+
+```{r}
+plant = read.table('CH26PR19.txt')
+names(plant) = c('Y', 'A', 'B', 'K'); 
+plant$A = as.factor(plant$A)
+plant$B = as.factor(plant$B)
+plant$K = as.factor(plant$K)
+(a = length(unique(plant$A)))
+(b = length(unique(plant$B)))
+(k = length(unique(plant$K)))
+
+fit = aov(Y ~ A/B, data = plant)
+(fit.aov = summary(fit))
+(res.fit = residuals(fit))
+
+par(mfrow=c(1, 2))
+# residuals against fitted value plot
+plot(fit, which = 1)
+# Normal probability plot
+qqnorm(res.fit); qqline(res.fit)
+cor(qqnorm(res.fit)$x, qqnorm(res.fit)$y)
+```
+
+This model is appropriate.
+
+# 26.20 Plant acid levels
+
+## (a)
+
+```{r}
+fit.aov
+```
+
+## (b)
+
+```{r}
+MSEE = 114.393
+MSOE = 23.432
+(F_E = MSEE/MSOE)
+qf(0.95, a-1, a*(b-1))
+1-pf(F_E, a-1, a*(b-1))
+```
+
+Null hypothesis ($H_0$): There are no variations in mean concentration levels between plants
+
+Alternatives: There are variations in mean concentration levels between plants
+
+Decision Rule: $F^* = \frac{MSEE}{MSOE}$, and reject $H_0$ if $F^* > F_{0.95, a-1, a(b-1)}$
+
+Conclusion: since $F^* = 4.881914 > 4.066181 = F_{0.95, a-1, a(b-1)}$, then reject $H_0$. The p-value is 0.03243786
+
+## (c)
+
+```{r}
+MSE = 0.126
+(F_EE = MSOE/MSE)
+qf(0.95, a*(b-1), a*b*(k-1))
+1-pf(F_EE, a*(b-1), a*b*(k-1))
+```
+
+Null hypothesis ($H_0$): There are no variations in mean concentration levels between leaves of the same plant
+
+Alternatives: There are variations in mean concentration levels between leaves of the same plant
+
+Decision Rule: $F^* = \frac{MSOE}{MSE}$, and reject $H_0$ if $F^* > F_{0.95, a(b-1), ab(c-1)}$
+
+Conclusion: since $F^* = 185.9683 > 2.355081 = F_{0.95, a(b-1), ab(c-1)}$, then reject $H_0$. The p-value is 0.0000
+
+## (d)
+
+```{r}
+(Y_hat = mean(plant$Y))
+(t = qt(0.975, a-1))
+(s = sqrt(MSEE/(a*b*k)))
+c(Y_hat, Y_hat-t*s, Y_hat+t*s)
+```
+
+So the confidence interval is (8.588153, 19.934069)
+
+## (e)
+
+```{r}
+(delta = MSE)
+(delta_a = (MSEE-MSOE)/(k*b))
+(delta_ba = (MSOE-MSE)/k)
+(delta_Y = delta + delta_a + delta_ba)
+```
+
+so $\hat{\sigma}_r^2$ seems to be the most important
+
+# 27.6
+
+## (a)
+
+```{r}
+sale = read.table('CH27PR06.txt')
+names(sale) = c('y', 'A', 'B')
+sale$id <- 1:24
+sale$A = as.factor(sale$A)
+sale$B = as.factor(sale$B)
+(s = nlevels(sale$A))
+(r = nlevels(sale$B))
+model = aov(y ~ A + B, data = sale)
+(model.summary = summary(model))
+(model.resid = residuals(model))
+
+par(mfrow=c(1, 2))
+# residuals against fitted value plot
+plot(model, which = 1)
+# Normal probability plot
+qqnorm(model.resid); qqline(model.resid)
+cor(qqnorm(model.resid)$x, qqnorm(model.resid)$y)
+```
+
+It is appropriate
+
+## (b)
+
+```{r}
+stripchart(split(model.resid, sale$B), method = 'stack', pch = 19)
+abline(h = seq(1, 3) - 0.1)
+```
+
+The assumption of no interactions between subjects and treatments appear to be reasonable here
+
+## (c)
+
+```{r}
+with(sale, interaction.plot(B, A, y))
+```
+
+
+## (d)
+
+```{r}
+library('additivityTests')
+(additivity_sale = matrix(sale$y, byrow = TRUE, ncol = r))
+tukey.test(additivity_sale, 0.01)
+1-pf(5.765, 1, 13)
+```
+
+Null hypothesis ($H_0$): there is additivity effect
+
+Alternatives: there is no additivity effect
+
+Decision Rule: $F^* = \frac{MSTR.S/1}{SSRem/13}$, and reject $H_0$ if $F^* > F_{0.95, 1, 13}$
+
+Conclusion: since $F^* = 5.765 < 9.074 = F_{0.95, 1, 13}$, then cannot reject $H_0$. The p-value is 0.03202252
+
+# 27.7
+
+## (a)
+
+```{r}
+anova(model)
+```
+
+## (b)
+
+```{r}
+MSTR = 33.740
+MSTR.S = 0.684
+(F_star = MSTR/MSTR.S)
+qf(0.95, r-1, (r-1) * (s-1))
+1-pf(F_star, r-1, (r-1) * (s-1))
+```
+
+Null hypothesis ($H_0$): mean sales of grapefruits do not differ for the three price levels
+
+Alternatives: mean sales of grapefruits differ for the three price levels
+
+Decision Rule: $F^* = \frac{MSTR}{MSE}$, and reject $H_0$ if $F^* > F_{0.95, r-1, (r-1)(s-1)}$
+
+Conclusion: since $F^* = 49.32749 > 3.738892 = F_{0.95, r-1, (r-1)(s-1)}$, then reject $H_0$. The p-value is 0.0000
+
+## (c)
+
+use tukey's method
+
+```{r}
+(mu = with(sale, tapply(y, B, mean)))
+(mu1 = mu[1])
+(mu2 = mu[2])
+(mu3 = mu[3])
+(tukey_stat = 1/sqrt(2) * qtukey(0.95, 3, 14))
+(l1 = mu1-mu2)
+(l2 = mu1-mu3)
+(l3 = mu2-mu3)
+(sd_tukey = sqrt(MSTR.S * 2 / s))
+```
+
+So the confidence intervals are:
+
+$L_1: 1.8375 \pm 0.4135215*2.61728$ = (0.756, 2.919) 
+
+$L_2: 4.1 \pm 0.4135215*2.61728$ = (3.018, 5.182) 
+
+$L_3: 2.2625 \pm 0.4135215*2.61728$ = (1.181, 3.344)
+
+```{r}
+library(plotrix)
+plotCI(1:3, y = c(l1, l2, l3), li = c(0.756, 3.018, 1.181), ui = c(2.919, 5.182, 3.344))
+```
+
+## (d)
+
+```{r}
+MSS = 106.46
+(E = ((s - 1) * MSS + s * (r - 1) * MSTR.S)/((s * r - 1) * MSTR.S))
+```

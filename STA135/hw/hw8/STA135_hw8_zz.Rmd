@@ -1,0 +1,63 @@
+---
+title: "STA135 homework8"
+author: "Zhen Zhang"
+date: "February 20, 2016"
+output: pdf_document
+---
+
+# 6.20
+
+```{r}
+dat_male = read.table("T6-11.dat")
+dat_female = read.table("T5-12.dat")
+data = cbind(dat_male, dat_female)
+names(data) = c("male_tail", "male_wing", "female_tail", "female_wing")
+```
+
+## (a)
+
+```{r}
+plot(data$`male_wing`, data$`male_tail`)
+```
+
+The outlier is the 31th observation.
+
+## (b) & (c)
+
+```{r}
+# first case
+dat_male <- dat_male[-31, ]
+pooled_var <- cov(dat_male)/44 + cov(dat_female)/45
+dat_male_mean <- apply(dat_male, 2, mean)
+dat_female_mean <- apply(dat_female, 2, mean)
+chi_star <- sqrt(qchisq(1-0.05, 2))
+sd_deviation <- sqrt(diag(pooled_var))
+part2 <- chi_star * sd_deviation
+deviation <- dat_male_mean - dat_female_mean
+(interval <- matrix(c(deviation - part2, deviation + part2), nrow = 2))
+(t_square <- t(deviation) %*% solve(pooled_var) %*% deviation)
+(c <- sqrt(t_square))
+solve(pooled_var) %*% deviation
+
+dat_male = read.table("T6-11.dat")
+dat_male[31, 1] <- 184
+pooled_var <- cov(dat_male)/45 + cov(dat_female)/45
+dat_male_mean <- apply(dat_male, 2, mean)
+dat_female_mean <- apply(dat_female, 2, mean)
+chi_star <- sqrt(qchisq(1-0.05, 2))
+sd_deviation <- sqrt(diag(pooled_var))
+part2 <- chi_star * sd_deviation
+deviation <- dat_male_mean - dat_female_mean
+(interval <- matrix(c(deviation - part2, deviation + part2), nrow = 2))
+(t_square <- t(deviation) %*% solve(pooled_var) %*% deviation)
+(c <- sqrt(t_square))
+solve(pooled_var) %*% deviation
+```
+
+H0 is rejected at either case. The coefficient indicates the difference is due to tail.
+
+The region is on the handwritten paper.
+
+## (d)
+
+Female birds are larger, due to larger tail than male birds (see 0 is included in the interval of either case). The difference between wing is not significant
