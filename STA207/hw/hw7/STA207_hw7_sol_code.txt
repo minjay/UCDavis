@@ -1,0 +1,126 @@
+##########
+# Prob 7 #
+##########
+
+library('pls')
+
+dat = read.table('data/apartment.txt', header = TRUE); head(dat)
+n = nrow(dat); n
+dat.stan = dat
+for(j in 1:ncol(dat.stan))
+  dat.stan[,j] = (dat[,j] - mean(dat[,j]))/sd(dat[,j])
+head(dat.stan)
+
+### a
+# typo: 1:5 instead of 0:5
+set.seed(207) # due to randomness, don't match numbers
+ncomps = 5
+model = plsr(Y ~ 0 + ., 
+             ncomps, data = dat.stan, validation = 'CV')
+scores(model)
+model$projection # loadings (thanks to Clark F!)
+summary(model)
+
+k = 1:ncomps
+r.sq = c(92.14, 96.53, 97.92, 98.01, 98.05)/100
+r.adj = 1 - (n-1)/(n-k-1)*(1-r.sq); r.adj
+
+plot(model, plottype = 'scores', comps = 1:3)
+
+### b
+r.sq = c(0, r.sq); r.sq
+f.k = sapply(2:length(r.sq), function(k) 
+  (n-k)*(r.sq[k] - r.sq[k-1])/(1-r.sq[k])); f.k
+
+### c
+ncomps = 2 # this answer is subjective
+model = plsr(Y ~ 0 + ., 
+             ncomps, data = dat.stan, validation = 'CV')
+coef(model)
+plot(fitted(model)[,,ncomps], dat.stan[,1])
+
+
+
+##########
+# Prob 8 #
+##########
+
+library('glmnet')
+
+dat = read.table('data/apartment.txt', header = TRUE); head(dat)
+n = nrow(dat); n
+dat.stan = dat
+for(j in 1:ncol(dat.stan))
+  dat.stan[,j] = (dat[,j] - mean(dat[,j]))/sd(dat[,j])
+head(dat.stan)
+x = as.matrix(dat.stan[,-1]); head(x)
+
+### a
+set.seed(207) # due to randomness, don't match numbers
+model = cv.glmnet(x, dat.stan[,1], intercept = FALSE)
+plot(model)
+model$lambda.min
+
+### b
+coef(model)
+
+fitted. = predict(model, newx = x)
+plot(fitted., dat.stan[,1])
+
+res = dat.stan[,1] - fitted.
+plot(fitted., res)
+hist(res)
+
+plot(fitted(model)[,,ncomps], resid(model)[,,ncomps])
+hist(resid(model)[,,ncomps])
+
+
+##########
+# Prob 10 #
+##########
+
+lambda = c(19, 3, 1, .7, .3)
+e.beta = c(.8, .3, .2, .2, .1)
+sig.sq = 2.5
+
+k.seq = seq(0, 100*sig.sq, .1)
+
+### a
+d.foo = function(k, sig.sq, lambda) 
+{
+  sig.sq * sum( lambda / (k+lambda)^2 ) + 
+    k^2 * sum( e.beta^2 / (k+lambda)^2 )
+}
+
+# plots may differ based on choice of k.seq
+d.eval = sapply(k.seq, function(k) d.foo(k, sig.sq, lambda))
+plot(k.seq, d.eval)
+
+# not necessary to use optimize() to get the minimum, 
+# so approx answer is fine
+d.opt = optimize(d.foo, c(0, 100), sig.sq, lambda); d.opt
+
+### b
+# same comments as in part a
+l.foo = function(k, sig.sq, lambda, e.beta) 
+{
+  sig.sq * sum( lambda^2 / (k+lambda)^2 ) + 
+    k^2 * sum( e.beta^2*lambda / (k+lambda)^2 )
+}
+
+l.eval = sapply(k.seq, function(k) 
+  l.foo(k, sig.sq, lambda, e.beta))
+plot(k.seq, l.eval)
+
+l.opt = optimize(l.foo, c(0, 100), sig.sq, lambda, e.beta); l.opt
+
+### c
+# again, approx min's are fine
+tmp = 0
+
+d.foo(tmp, sig.sq, lambda)
+d.opt$objective
+
+l.foo(tmp, sig.sq, lambda, e.beta)
+l.opt$objective
+

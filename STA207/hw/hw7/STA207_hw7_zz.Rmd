@@ -1,0 +1,347 @@
+---
+title: "STA207 homework7"
+author: "Juanjuan Hu, Zhen Zhang"
+date: "March 8, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+options(width=60)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 14.9
+
+```{r, echo = FALSE}
+library(xlsx)
+perform = read.xlsx2("PR14.9.xlsx",1)
+perform$Stability = as.numeric(as.character(perform$Stability))
+```
+
+## (a)
+
+```{r}
+# fit the simple logistic regression
+fit1 = glm(Ability~Stability, data = perform, family = binomial)
+summary(fit1)
+```
+The MLE of $\beta_0$ and $\beta_1$ are: -10.31, 0.02. The fitted response function is: $\hat{\pi}=\frac{exp(-10.31+0.02X)}{1+exp(-10.31+0.02X)}$
+
+## (b)
+
+```{r}
+b0 = -10.308925
+b1 = 0.018920
+X=perform$Stability
+prediction = predict(fit1,type = 'response')
+f = function(x) exp(b0+b1*x)/(1+exp(b0+b1*x))
+par(mfrow =c(1,1))
+plot(X,y = as.numeric(as.character(perform$Ability)))
+lines(lowess(X, prediction),col="blue",lwd=2)
+curve(f, 400, 650, add=TRUE)
+```
+
+It fits well.
+
+## (c)
+
+```{r}
+exp(b1)
+```
+
+exp(b1) is 1.0191, which means that the estimated oddes are multiplied by 1.0191 for any unit increase in x.
+
+## (d)
+
+```{r}
+f(550)
+```
+
+The estimated probability is 0.5242.
+
+## (e)
+
+```{r}
+p=0.7
+x = (log(p/(1-p))-b0)/b1
+x
+```
+
+The estimated emotional stability test score is 589.6542.
+
+# 14.11
+
+## (a)
+
+```{r}
+x_j = c(2,5,10,20,25,30)
+n_j = rep(500, 6)
+Y_j = c(72, 103, 170, 296, 406, 449)
+p_j = Y_j/n_j
+p_j
+plot(p_j)
+```
+
+The plot has a sigmoid shape within a range (0, 1). It suggests that the logistic response function is appropriate.
+
+## (b)
+
+```{r}
+fit2 = glm(p_j~x_j, family = binomial)
+summary(fit2)
+```
+
+The MLE of $\beta_0$ and $\beta_1$ are: -2.0766, 0.1359. The fitted response function is: $\hat{p}=\frac{exp(-2.0766+0.1359X)}{1+exp(-2.0766+0.1359X)}$
+
+## (c)
+
+```{r}
+f = function(x) exp(-2.0766+0.1359*x)/(1+exp(-2.0766+0.1359*x))
+par(mfrow =c(1,1))
+plot(x_j,p_j)
+curve(f, 0, 30, add=TRUE)
+```
+
+The fit looks pretty good.
+
+## (d)
+
+```{r}
+b1=0.1359
+exp(b1)
+```
+
+exp(b1) is 1.1456, which means that the estimated oddes are multiplied by 1.1456 for any unit increase in x.
+
+## (e)
+
+```{r}
+f(15)
+```
+
+The estimated probability is 0.4905.
+
+## (f)
+
+```{r}
+b0=-2.0766
+b1-0.1359
+p=0.75
+x = (log(p/(1-p))-b0)/b1
+x
+```
+
+The amount of deposit is estimated to be 23.3643.
+
+# 14.14
+
+## (a)
+
+```{r}
+flu = read.table("http://www.stat.ufl.edu/~rrandles/sta4210/Rclassnotes/data/textdatasets/KutnerData/Chapter%2014%20Data%20Sets/CH14PR14.txt", header = FALSE)
+names(flu) = c("Y", "X1", "X2", "X3")
+flu$X3 = as.factor(flu$X3)
+flu$Y = as.numeric(flu$Y)
+flu$X1 = as.numeric(flu$X1)
+flu$X2 = as.numeric(flu$X2)
+
+fit3 = glm(Y~X1+X2+X3, data = flu, family = binomial)
+summary(fit3)
+```
+The MLE of $\beta_0$, $\beta_1$, $\beta_2$ and $\beta_3$ are: -1.17716, 0.07279, -0.09899, 0.43397. The fitted response function is: $\hat{\pi}=\frac{exp(-1.17716+0.07279X_1-0.09899X_2+0.43397X_3)}{1+exp(-1.17716+0.07279X_1-0.09899X_2+0.43397X_3)}$
+
+## (b)
+
+```{r}
+b0 = -1.17716
+b1 = 0.07279
+b2 = -0.09899
+b3 = 0.43397
+exp(b1)
+exp(b2)
+exp(b3)
+```
+exp(b1), exp(b2) and exp(b3) are 1.0755, 0.9058, 1.5434. It means that holding other variables constant, unit increse in x1 leads to the estimated odds multiplied by 1.0755; unit increse in x2 leads to the estimated odds multiplied by 0.9058; unit increse in x3 leads to the estimated odds multiplied by 1.5434.
+
+## (c)
+
+```{r}
+X_1 = 55
+X_2 = 60
+X_3 = 1
+f = exp(-1.17716+0.07279*X_1-0.09899*X_2+0.43397*X_3)/(1+exp(-1.17716+0.07279*X_1-0.09899*X_2+0.43397*X_3))
+f
+```
+The estimated probabity is 0.642.
+
+# 14.20
+
+## (c)
+
+```{r}
+flu$X3=as.numeric(as.character(flu$X3))
+b0 = -1.17717-0.1^3
+b1 = 0.07279
+b2 = -0.09899
+b3 = 0.43397
+sum1 = 0
+for (i in 1:159) {
+sum1=sum1+flu[i,]$Y*(b0+b1*flu[i,]$X1+b2*flu[i,]$X2+b3*flu[i,]$X3)
+}
+sum2 = 0
+for (i in 1:159){
+sum2=sum2+log(1+exp(b0+b1*flu[i,]$X1+b2*flu[i,]$X2+b3*flu[i,]$X3))
+}
+sum1-sum2
+
+fit4 = glm(Y~X1+X2, data = flu, family = binomial)
+b0 = -1.45778
+b1=0.07787
+b2 = -0.09547
+sum1 = 0
+for (i in 1:159) {
+sum1=sum1+flu[i,]$Y*(b0+b1*flu[i,]$X1+b2*flu[i,]$X2)
+}
+sum2 = 0
+for (i in 1:159){
+sum2=sum2+log(1+exp(b0+b1*flu[i,]$X1+b2*flu[i,]$X2))
+}
+sum1-sum2
+```
+
+# 7
+
+```{r}
+library(pls)
+apartment <- read.table("data/apartment.txt", header = T)
+apartment <- as.data.frame(apply(apartment, 2, scale))
+```
+
+## (a)
+
+```{r}
+set.seed(100)
+plsr_model1 <- plsr(Y ~ 0 + ., 5, data = apartment, validation = 'CV')
+# scores
+scores(plsr_model1)
+# loadings
+loadings(plsr_model1)[, 1:3]
+n <- nrow(apartment)
+
+apartment_mean <- apply(apartment, 2, mean)
+SSTO <- sum((apartment$Y - apartment_mean[1])^2)
+SSE <- apply((residuals(plsr_model1)[,,])^2, 2, sum)
+# R square
+R2 <- 1 - SSE / SSTO
+# adjusted R square
+R2_adjusted <- 1 - (1 - R2) * (n - 1) / (n - 1:5 - 1)
+plot(plsr_model1, plottype = 'scores', comps = 1:3)
+```
+
+The model with 3 components is the best one, since more components does not give us more information.
+
+## (b)
+
+```{r}
+seq_F <- (n - 2:5 - 1) * (R2[2:5] - R2[1:4]) / (1 - R2[2:5])
+seq_F_1 <- (n - 1 - 1) * (R2[1] - 0) / (1 - R2[1])
+seq_F <- c(seq_F_1, seq_F)
+q_F <- sapply(1:5, function(x) qf(0.95, 1, n - x - 1))
+
+summary(plsr_model1)
+```
+
+We should select model with 3 components under sequential F test. But under CV, 3 components and 4 components do not differ from each other very much.
+
+## (c)
+
+```{r}
+plsr_model2 <- plsr(Y ~ 0 + ., 3, data = apartment, validation = 'CV')
+# coefficients
+coef(plsr_model2)
+par(mfrow = c(1,3))
+# fitted vs observed
+plot(plsr_model2)
+# residual vs fitted
+plot(residuals(plsr_model2)[,,3], fitted(plsr_model2)[,,3])
+abline(h = 0)
+# histogram of residuals
+hist(residuals(plsr_model2)[,,3])
+```
+
+This model is appropriate.
+
+# 8
+
+## (a)
+
+```{r}
+library(glmnet)
+glmnet_model1 <- cv.glmnet(as.matrix(apartment[,-1]), apartment$Y, intercept = F)
+# plot
+plot(glmnet_model1)
+# the value of penalty at which the cv is the smallest
+glmnet_model1$lambda.min
+```
+
+## (b)
+
+```{r}
+# coefficient
+coef(glmnet_model1, s = 'lambda.min')@x
+glmnet_model1_fitted <- as.matrix(apartment[,-1]) %*% coef(glmnet_model1, s = 'lambda.min')@x
+glmnet_model1_residual <- apartment$Y - glmnet_model1_fitted
+par(mfrow = c(1,3))
+# the observed against the fitted values
+plot(apartment$Y, glmnet_model1_fitted)
+# residuals against fitted
+plot(glmnet_model1_residual, glmnet_model1_fitted)
+abline(h = 0)
+# histogram of residuals
+hist(glmnet_model1_residual)
+```
+
+The model is a little left skewed.
+
+# 10
+
+## (a)
+
+```{r}
+lambda <- c(19, 3, 1, 0.7, 0.3)
+e_beta <- c(0.8, 0.3, 0.2, 0.2, 0.1)
+sigma_square <- 2.5
+k <- seq(0, 100, 0.1)
+
+calculate_d <- function(k) 
+  sigma_square * sum(lambda / (k + lambda)^2) + k^2 * sum((e_beta)^2 / (k + lambda)^2)
+
+d_vec <- sapply(k, calculate_d)
+plot(d_vec)
+which.min(d_vec) / 10
+```
+
+So the value is 12
+
+## (b)
+
+```{r}
+calculate_L <- function(k) 
+  sigma_square * sum(lambda^2 / (k + lambda)^2) + k^2 * sum((e_beta)^2 * lambda / (k + lambda)^2)
+
+l_vec <- sapply(k, calculate_L)
+plot(l_vec)
+which.min(l_vec) / 10
+```
+
+So the value is 6.3
+
+## (c)
+
+```{r}
+calculate_d(0)
+calculate_d(12)
+calculate_L(0)
+calculate_L(6.3)
+```
+

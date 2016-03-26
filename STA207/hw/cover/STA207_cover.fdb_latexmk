@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1457375056 "STA207_cover.tex" "STA207_cover.pdf" "STA207_cover" 1457375056
+["pdflatex"] 1458094805 "STA207_cover.tex" "STA207_cover.pdf" "STA207_cover" 1458094805
   "/usr/local/texlive/2015basic/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "/usr/local/texlive/2015basic/texmf-dist/fonts/tfm/public/cm/cmr12.tfm" 1136768653 1288 655e228510b4c2a1abe905c368440826 ""
   "/usr/local/texlive/2015basic/texmf-dist/fonts/tfm/public/cm/cmr17.tfm" 1136768653 1292 296a67155bdbfc32aa9c636f21e91433 ""
@@ -13,9 +13,9 @@
   "/usr/local/texlive/2015basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1450412918 329698 0990cff2399ac8b2077c573c0443b2d2 ""
   "/usr/local/texlive/2015basic/texmf-var/web2c/pdftex/pdflatex.fmt" 1437838044 2499808 ea318aa261bdaa2bc83066a9856a2d18 ""
   "/usr/local/texlive/2015basic/texmf.cnf" 1432478332 628 096f87b1123b576e7bac81e7554a490e ""
-  "STA207_cover.aux" 1457375056 8 a94a2480d3289e625eea47cd1b285758 ""
-  "STA207_cover.tex" 1456339097 311 a1694beaf844b842a448d275d25f3ade ""
+  "STA207_cover.aux" 1458094805 8 a94a2480d3289e625eea47cd1b285758 ""
+  "STA207_cover.tex" 1458094805 311 dda2a5de4ec32bb49e4f446ee0ece0ee ""
   (generated)
-  "STA207_cover.pdf"
   "STA207_cover.aux"
+  "STA207_cover.pdf"
   "STA207_cover.log"
